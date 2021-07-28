@@ -1,0 +1,187 @@
+<body>
+   
+    <style>
+        .pgsettingstoggle {
+            top: 20px;
+            right: 35px;
+            position: absolute;
+            z-index:10;
+        }
+
+        .pghidden {
+            display:none;
+        }
+        /*dat gui*/
+        #mygui
+        { 
+            position:absolute;
+            right:35px;
+            top:20px;
+            z-index:5;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(190, 186, 186, 0.19);
+            z-index:4;
+            background: rgba(255, 255, 255, 1.0);
+            opacity: 0.8;
+
+        }     
+
+        .dg li.save-row {
+            display:none;
+        }
+     
+        #pgccanvas{
+            width: 100%;
+            height: 100%;
+            /* background-color: #0a0f79cf; */
+            background-image: url(img/DarkBluePaper.jpg);
+            background-size: cover;
+        }
+        .pgclabel{
+            /* width: 30%;
+            height: 15%; */
+            left:20px;
+            bottom:20px;
+            /* border: 2px grey;
+            border-style: solid; */
+            position: absolute;
+            /* background-color: #0a0f79cf; */
+            background-image: url(img/DarkPaper.jpg);
+            background-size: cover;
+            color: #eee;
+            font-family: 'Brush Script MT', cursive;
+            font-style: bold;
+            
+            box-sizing: border-box;
+            opacity: 0.60;
+
+        }        
+        .pgclabel-box{
+            color: #eee;
+            float:left; 
+            outline: 1px blue;
+            outline-style: solid;
+        }  
+        .pgclabel .row{
+  
+            width:100%;
+            overflow: hidden;
+        }          
+        .label{
+            font-family: "Helvetica";
+            font-size:x-small;
+            width:100%;
+            display:block;
+            margin-left: 15px;
+            color:lightgrey;
+            /* margin-top: 4px; */
+        }          
+        .pgclabel-box .box{
+            margin-left: 2%;
+        } 
+
+        .section {
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+        }
+
+        .column {
+            margin: 0px;
+            flex-grow: 1;
+            flex-shrink: 1;
+            flex-basis: 0;
+
+            padding: 2px 24px 4px 10px;
+            /* background-color: rgba(255, 0, 0, 0.25); */
+
+            
+            border: 1px solid grey;
+            color: white;
+        }
+
+        /* Special styling for WebKit/Blink */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            border: 1px solid #000000;
+            height: 36px;
+            width: 16px;
+            border-radius: 3px;
+            background: green;
+            cursor: pointer;
+            margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+        }
+            /* All the same stuff for Firefox */
+        input[type=range]::-moz-range-thumb {
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            border: 1px solid #000000;
+            height: 36px;
+            width: 16px;
+            border-radius: 3px;
+            background: green;
+            cursor: pointer;
+            }       
+
+        h1 { font-family: "Architects Daughter"; font-size: 24px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; } h3 { font-family: "Architects Daughter"; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 15.4px; } p { font-family: "Architects Daughter"; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; } blockquote { font-family: "Architects Daughter"; font-size: 21px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px; } pre { font-family: "Architects Daughter"; font-size: 13px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 18.5714px; }
+    </style>
+
+    <canvas id="pgccanvas" ></canvas>
+    <div id="pgc2dcanvas" style='position: absolute;top:45px;left:25px;width:25%;height:25%;border:1px solid white'></div>
+    <input type="range" id="layer-slider" name="layer" min="0" value='100' max="100" orient="vertical" style="-webkit-appearance: slider-vertical;position:absolute;width:25px;right:35px;top:60px;bottom:35px;">
+    <div style="position: absolute;left:1%;bottom:20px;">
+    </div>
+    <button class="pgsettingstoggle" title="Toggle settings window">&#9881</button>
+    <div id='mygui' class='xgwin pghidden'></div>
+
+    <div class='pgclabel'>
+        <div class='section'>
+            <div class='column'><span class="label">NAME</span><span id='status-name'>gcode</span></div>
+        </div>
+        <div class='section'>
+            <div id='status-source'  class='column'><span class="label">SOURCE       &#164</span><span>OctoPrint</span></div>
+            <div   class='column'><span class="label">STATE</span><span id='status-state'>Printing</span></div>
+            <div id='model-temp'  class='column'><span class="label">TOOL</span><span id='status-tooltemp'>0.0°</span></div>
+            <div id='model-temp'  class='column'><span class="label">BED</span><span id='status-bedtemp'>0.0°</span></div>
+            <!-- <div id='model-temp'  class='column'><span class="label">FAN</span><span>100%</span></div>             -->
+        </div>
+
+        <div class='section'>
+            <div id='model-done'  class='column'><span class="label">DONE</span><span id='status-done'>0%</span></div>
+            <div id='model-layer'  class='column' style='flex-grow: 1;flex-shrink: 1;'><span class="label">LAYER</span><span id='status-layer'>-/-</span></div>
+            <div id='model-elapsed'  class='column'><span class="label">ELAPSED</span><span id='status-elapsed'>00:00</span></div>
+            <!-- <div id='model-left'  class='column'><span class="label">LEFT</span><span>45m</span></div> -->
+            <div id='model-left'  class='column' style='flex-grow: 2;flex-shrink: 2;'><span class="label">ETA</span><span id='status-eta'>00:00</span></div>
+        </div>
+
+        
+        <div class='section'>
+            <!-- <div id='model-name'  class='column' style='flex-grow: 5;flex-shrink: 5;'>
+                <span class="label">PLAYBACK</span>
+                <input type="checkbox" id="vehicle1" name="vehicle1" value="true">
+                <label for="vehicle1">Synced</label>
+                
+                <button id='play-button'>&#x23f8;</button>
+                <button id='slower-button'>&#x23F7</button>
+                <button id='faster-button'>&#x23F6</button>
+            </div> -->
+            <!-- <div id='model-name'  class='column'>
+                <span class="label">PLAYBACK RATE</span>
+                <span>1.2x</span>
+            </div> -->
+        </div>        
+    </div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+
+    <script src="js/three.min.js"></script>
+    <script src="js/LineSegmentsGeometry.js"></script>
+    <script src="js/LineGeometry.js"></script>
+    <script src="js/OBJLoader.js"></script>
+    <script src="js/LineMaterial.js"></script>
+    <script src="js/LineSegments2.js"></script>
+    <script src="js/Line2.js"></script>
+    <script src="js/stats.js"></script>
+    <script src="js/camera-controls.js"></script>
+    <script src="js/dat.gui.js"></script>
+    <script src="js/pgcodeparser.js"></script>
+    <script src="js/prettygcodeview.js"></script>
+</body>
