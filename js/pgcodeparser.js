@@ -675,6 +675,17 @@ function PrintHeadSimulator()
 
     }
 
+    //load from a file://
+    this.loadGcodeLocal=function(file){
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          //console.log(e.target.result);
+          addCommands(e.target.result);
+        };
+        reader.readAsText(file, "UTF-8");
+    }
+
+    //load from a url
     this.loadGcode=function(file_url)
     {
         var myRequest = new Request(file_url,

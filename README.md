@@ -34,6 +34,11 @@ server {
 sudo nginx -t -c /etc/nginx/nginx.conf
 ```
 
+- Enable site by making symbolic link
+```
+sudo ln -s /etc/nginx/sites-available/pgcode.local.conf  /etc/nginx/sites-enabled/pgcode.local.conf
+```
+
 - Restart nginx
 ```
 sudo systemctl reload nginx

@@ -155,6 +155,7 @@ $(function () {
             resetCamera();
         }
 
+        var forceDisconnect=false;
         function connectToOctoprint()
         {
             //let jobSourcePath = 'http://octopi.local/'
@@ -169,6 +170,10 @@ $(function () {
                 apiKey = '?apikey=666EC2F0E48C4F348375B904C9C187E5'
             //}
             setInterval(function () {
+
+                if(forceDisconnect)
+                    return;
+
                 var file_url = jobSourcePath+"api/job"+apiKey;//'/downloads/files/local/xxx.gcode';
                 //var file_url = "/api/job";//'/downloads/files/local/xxx.gcode';
 
@@ -259,6 +264,10 @@ $(function () {
 
             //get temp info.
             setInterval(function () {
+
+                if(forceDisconnect)
+                    return;
+
                 var file_url = jobSourcePath+"api/printer"+apiKey;//'/downloads/files/local/xxx.gcode';
                 //var file_url = "/api/job";//'/downloads/files/local/xxx.gcode';
 
@@ -386,7 +395,45 @@ $(function () {
             }
                             
         }
-                        
+
+        $('#pgccanvas').on(
+            'dragover',
+            function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        )
+        $('#pgccanvas').on(
+            'dragenter',
+            function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        )
+        $('#pgccanvas').on(
+            'drop',
+            function(e){
+                if(e.originalEvent.dataTransfer){
+                    if(e.originalEvent.dataTransfer.files.length) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        let files = e.originalEvent.dataTransfer.files;
+                        //alert('Upload '+files.length+' File(s).');
+                        let reader = new FileReader();
+                        uploadGcode(files[0])
+                        //            /*UPLOAD FILES HERE*/
+                        //upload(e.originalEvent.dataTransfer.files);
+                    }   
+                }
+            }
+        );
+                 
+        function uploadGcode(file){
+            forceDisconnect=true;
+            updateJob(file)
+
+        }
+        window.uploadGcode=uploadGcode;
 
         function initGui()
         {
@@ -1064,6 +1111,26 @@ $(function () {
         //rename to loadGcode or something.
         function updateJob(job){
             
+            if(job instanceof File)
+            {
+                if(viewInitialized){
+                    curJobName=job.name
+
+                    if(gcodeProxy){
+                        gcodeProxy.reset();
+                    }
+
+                    printHeadSim=new PrintHeadSimulator();
+                    gcodeProxy = printHeadSim.getGcodeObject();
+                    var gcodeObject = gcodeProxy.getObject();
+                    gcodeObject.position.set(-0, -0, 0);
+                    scene.add(gcodeObject);
+
+                    printHeadSim.loadGcodeLocal(job);
+                }
+                return;
+            }
+
             // if (durJobDate != job.file.date) {
             //     curJobName = job.file.path;
             //     durJobDate = job.file.date;
@@ -1071,19 +1138,9 @@ $(function () {
                 if(viewInitialized);// && gcodeProxy)
                     {
                         curJobName=job
-                        //gcodeProxy.loadGcode('/downloads/files/local/' + curJobName);
-                        //gcodeProxy.loadGcode('http://fluiddpi.local/server/files/gcodes/' + curJobName);
-
-                        //remove old gcode objects
-                        // scene.traverse(function (child) {
-                        //     if (child.name.startsWith("gcode")) { 
-                        //         scene.remove(child)
-                        //     }
-                        // })
 
                         if(gcodeProxy){
                             gcodeProxy.reset();
-
                         }
 
                         printHeadSim=new PrintHeadSimulator();
