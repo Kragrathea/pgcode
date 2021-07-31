@@ -93,6 +93,9 @@ function PrinterConnection()
             if(forceDisconnect)
                 return;
 
+                //todo. put this somewhere else
+            $("#status-source").html("Octoprint")
+
             var file_url = host+"/api/job"+apiKey;//'/downloads/files/local/xxx.gcode';
             //var file_url = "/api/job";//'/downloads/files/local/xxx.gcode';
 
@@ -132,21 +135,24 @@ function PrinterConnection()
                                 let perDone = parseInt(msg.progress.completion);
                                 if(isNaN(perDone))
                                     perDone=0;
-                                curPrinterState.perDone=perDone;
-                                curPrinterState.printTime=msg.progress.printTime;
-                                curPrinterState.printTimeLeft=msg.progress.printTimeLeft
+                                printerConnection.curPrinterState.perDone=perDone;
+                                printerConnection.curPrinterState.printTime=msg.progress.printTime;
+                                printerConnection.curPrinterState.printTimeLeft=msg.progress.printTimeLeft
                             }
                             if(msg.state){
                                 //console.log(msg.progress.filepos)
-                                curPrinterState.filePos=msg.progress.filepos
-                                curPrinterState.state=msg.state.toLowerCase();
+                                printerConnection.curPrinterState.filePos=msg.progress.filepos
+                                printerConnection.curPrinterState.state=msg.state.toLowerCase();
                             }                                
                             if(msg.job){
                                 //console.log(msg.job.file.path)
                                 if(msg.job.file.path){
-                                    curPrinterState.fileName=msg.job.file.path
+                                    printerConnection.curPrinterState.gcodeName=msg.job.file.path
+                                    printerConnection.curPrinterState.gcodePath=host+'/downloads/files/local/'+msg.job.file.path+apiKey
                                 }
                             }
+
+                            printerConnection.onUpdateState(printerConnection.curPrinterState);
 
                             // read the next piece of the stream and process the result
                             return myReader.read().then(processResult);
