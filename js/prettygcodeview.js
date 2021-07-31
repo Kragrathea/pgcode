@@ -41,9 +41,9 @@ $(function () {
         var gui;
 
         var printHeadSim=new PrintHeadSimulator();
-        var curPrinterState=null;
-        var curPrintFilePos=0;
-        var curSimFilePos=0;
+
+
+        var curGcodePath="";
 
         var forceNoSync=false;//used to override sync when user drags slider. Todo. Better way to handle this?
         
@@ -153,247 +153,6 @@ $(function () {
 
             //Needed in case center has changed.
             resetCamera();
-        }
-
-        var forceDisconnect=false;
-        function connectToOctoprint()
-        {
-            //let jobSourcePath = 'http://octopi.local/'
-            //let apiKey = '?apikey=18439BE29F904B5CA4ED388EBE085C09'
-
-            let jobSourcePath = '/'
-            let apiKey=''
-            //if(document.location.href.startsWith("file")){
-                jobSourcePath = 'http://fluiddpi.local:5000/'
-                //jobSourcePath = 'http://fluiddpi.local:7125/'
-                //jobSourcePath = 'http://fluiddpi.local/'
-                apiKey = '?apikey=666EC2F0E48C4F348375B904C9C187E5'
-            //}
-            setInterval(function () {
-
-                if(forceDisconnect)
-                    return;
-
-                var file_url = jobSourcePath+"api/job"+apiKey;//'/downloads/files/local/xxx.gcode';
-                //var file_url = "/api/job";//'/downloads/files/local/xxx.gcode';
-
-                var myRequest = new Request(file_url,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'text/plain'
-                        },
-                        mode: 'cors',
-                        cache: 'no-cache',
-                        timeout: 900 
-                    }
-                );
-                fetch(myRequest)
-                    .then(function (response) {
-                        var contentLength = response.headers.get('Content-Length');
-                        //console.log(response)
-                        if (!response.body || !window['TextDecoder']) {
-                            response.text().then(function (text) {
-                                console.log(text);
-                                //finishLoading();
-                            });
-                        } else {
-                            var myReader = response.body.getReader();
-                            var decoder = new TextDecoder();
-                            var buffer = '';
-                            var received = 0;
-                            myReader.read().then(function processResult(result) {
-                                if (result.done) {
-                                    //finishLoading();
-                                    //syncGcodeObjTo(Infinity);
-                                    return;
-                                }
-                                received += result.value.length;
-                                let rresult = decoder.decode(result.value, { stream: true });
-                                let msg = JSON.parse(rresult);
-                                if(msg.progress){
-                                    //console.log(msg.progress.filepos)
-                                    //curPrintFilePos=msg.progress.filepos
-                                    $("#status-eta").html(new Date(msg.progress.printTimeLeft * 1000).toISOString().substr(11, 8))
-                                    let perDone = parseInt(msg.progress.completion);
-                                    if(isNaN(perDone))
-                                        perDone=0;
-                                    $("#status-done").html(perDone.toString()+"%")
-                                    $("#status-elapsed").html(new Date(msg.progress.printTime * 1000).toISOString().substr(11, 8))
-                                    if(gcodeProxy)
-                                        $("#status-layer").html(currentCalculatedLayer.toString()+"/"+gcodeProxy.getLayerCount())
-
-                                }
-                                if(msg.state){
-                                    //console.log(msg.progress.filepos)
-                                    curPrintFilePos=msg.progress.filepos
-                                    $("#status-state").html(msg.state)
-                                    curPrinterState=msg.state.toLowerCase();
-                                    //console.log("Set curPrinterState:"+curPrinterState)
-
-
-                                }                                
-                                if(msg.job){
-                                    //console.log(msg.job.file.path)
-                                    if(msg.job.file.path){
-                                        
-                                        //todo. hackish. find a better way. 
-                                        //Use Origin to determine this is an OctoPrint file or a Moonraker file (origin will be null).
-                                        if(msg.job.file.origin)
-                                            updateJob(jobSourcePath+'downloads/files/local/'+msg.job.file.path+apiKey);
-                                        else
-                                            updateJob(jobSourcePath+'server/files/gcodes/'+msg.job.file.path);
-                                        //updateJob('/downloads/files/local/'+msg.job.file.path);
-                                        $("#status-name").html(msg.job.file.path)
-                                    }
-
-
-                                }
-        
-                                /* process the buffer string */
-                                //parserObject.parse(decoder.decode(result.value, { stream: true }));
-        
-                                // read the next piece of the stream and process the result
-                                return myReader.read().then(processResult);
-                            })
-                        }                                
-
-                    })
-
-            }, 1000);
-
-            //get temp info.
-            setInterval(function () {
-
-                if(forceDisconnect)
-                    return;
-
-                var file_url = jobSourcePath+"api/printer"+apiKey;//'/downloads/files/local/xxx.gcode';
-                //var file_url = "/api/job";//'/downloads/files/local/xxx.gcode';
-
-                var myRequest = new Request(file_url,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'text/plain'
-                        },
-                        mode: 'cors',
-                        cache: 'no-cache',
-                        timeout: 900 
-                    }
-                );
-                fetch(myRequest)
-                    .then(function (response) {
-                        var contentLength = response.headers.get('Content-Length');
-                        //console.log(response)
-                        if (!response.body || !window['TextDecoder']) {
-                            response.text().then(function (text) {
-                                console.log(text);
-                                //finishLoading();
-                            });
-                        } else {
-                            var myReader = response.body.getReader();
-                            var decoder = new TextDecoder();
-                            var buffer = '';
-                            var received = 0;
-                            myReader.read().then(function processResult(result) {
-                                if (result.done) {
-                                    //finishLoading();
-                                    //syncGcodeObjTo(Infinity);
-                                    return;
-                                }
-                                received += result.value.length;
-                                let rresult = decoder.decode(result.value, { stream: true });
-                                let msg = JSON.parse(rresult);
-                                if(msg.temperature){
-                                    //console.log(msg.progress.filepos)
-                                    //curPrintFilePos=msg.progress.filepos
-                                    $("#status-bedtemp").html(msg.temperature.bed.actual)
-                                    $("#status-tooltemp").html(msg.temperature.tool0.actual)
-                                }
-
-        
-                                /* process the buffer string */
-                                //parserObject.parse(decoder.decode(result.value, { stream: true }));
-        
-                                // read the next piece of the stream and process the result
-                                return myReader.read().then(processResult);
-                            })
-                        }                                
-
-                    })
-
-            }, 2000);            
-            return;
-                           
-        }                
-
-
-        function connectToMoonraker()
-        {
-
-            if ("WebSocket" in window)
-            {
-                var ws = new WebSocket("ws://fluiddpi.local/websocket");
-                ws.onopen = function()
-                {
-                    ws.send('{"jsonrpc": "2.0","method": "printer.objects.query","params": {"objects": {"print_stats": null}},"id": 5434}')
-                    ws.send('{"jsonrpc": "2.0","method": "printer.objects.subscribe","params": {"objects": {'+
-                                '"virtual_sdcard":["file_position"],'+
-                                '"print_stats":["filename"]'+
-                                //'"toolhead": ["gcode_position"]'+
-                            '}},"id": 5434}'
-                            );
-                };
-
-                ws.onmessage = function (e) 
-                { 
-                    handled=false;
-                    if(e.data.indexOf("notify_proc_stat_update")>-1)
-                        handled=true;
-                    
-                    let msg = JSON.parse(e.data);
-                    //console.log(msg.method)
-                    if(e.data.indexOf("print_stats")>-1)
-                    {    
-                        //console.log(msg.params[0].virtual_sdcard.file_position);
-                        if(msg.result)
-                        {    if(msg.result.status.print_stats.filename)
-                            {
-                                let jobName=msg.result.status.print_stats.filename
-                                updateJob('http://fluiddpi.local/server/files/gcodes/'+jobName);
-                            }
-                            //return;//handled
-                        }
-                        handled=true;
-                    }
-                    if(e.data.indexOf("virtual_sdcard")>-1)
-                    {    
-                        //console.log(msg.params[0].virtual_sdcard.file_position);
-
-                        if(msg.params)
-                            curPrintFilePos=msg.params[0].virtual_sdcard.file_position
-                        handled=true;
-                        //return;//handled
-                    }
-
-                    if(!handled)
-                        console.log(e.data);
-                };
-
-                ws.onclose = function()
-                { 
-                };
-
-                ws.onerror = function(error){
-                }
-            }
-
-            else
-            {
-            // The browser doesn't support WebSocket
-            }
-                            
         }
 
         $('#pgccanvas').on(
@@ -525,6 +284,7 @@ $(function () {
         //handles fps display
         const stats = new Stats();
 
+        var printerConnection=null;
         self.initScene = function () {
             if (!viewInitialized) {
                 viewInitialized = true;
@@ -533,13 +293,44 @@ $(function () {
               
                 initGui()
 
+                printerConnection=new PrinterConnection()
+                printerConnection.onUpdateState=function(newState)
+                {
+                    //todo. maybe put these two in animate()
+                    //curPrinterState=newState.state;
+                    //curPrintFilePos=newState.filePos;
+
+                    $("#status-state").html(newState.state)
+                    $("#status-elapsed").html(new Date(newState.printTime * 1000).toISOString().substr(11, 8))
+                    $("#status-done").html(newState.perDone.toString()+"%")
+
+                    //todo. find another place for this?
+                    if(gcodeProxy)
+                        $("#status-layer").html(currentCalculatedLayer.toString()+"/"+gcodeProxy.getLayerCount())
+    
+                    if(curGcodePath!=newState.gcodePath && newState.gcodePath!="")
+                    {
+                        curGcodePath=newState.gcodePath;
+                        updateJob(newState.gcodePath)
+                        $("#status-name").html(newState.gcodeName)
+                    }
+                }
+                printerConnection.detectConnection();
+
                 initThree();
 
-                stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-                var statsElement=$("body").append( stats.dom );
+                //show fps unless url param "nofps"
+                let searchParams = new URLSearchParams(window.location.search)
+                if(!searchParams.has('nofps'))
+                {
+                    stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+                    $("body").append( stats.dom );
+                }
                 
 
-                connectToOctoprint()
+                //detectConnection();
+
+                //connectToOctoprint()
                 //connectToMoonraker();
                 
                 //GCode loader.
@@ -732,39 +523,29 @@ $(function () {
                 scene.add( nozzleGroup );
             }
 
-                extrudingLineGroup = new THREE.Group();
+            //create a cyl to be extruded segment
+            extrudingLineGroup = new THREE.Group();
 
-                geometry = new THREE.CylinderGeometry( 0.2,0.2, 1, 12 );
-                let extrudingLineMaterial = new THREE.MeshStandardMaterial( {
-                    //metalness: 1,   // between 0 and 1
-                    //roughness: 0.5, // between 0 and 1
-                    //envMap: cubeCamera.renderTarget.texture,
-                    color: new THREE.Color("red"),
-                    emissive:new THREE.Color("blue")
-                    //flatShading:true,
-                } );                
-                let extrudingLine =new THREE.Mesh( geometry, extrudingLineMaterial );
-                //extrudingLine.position.y = -1;
-                extrudingLine.scale.y=2;
-                extrudingLine.rotation.x = -Math.PI / 2;
-                //extrudingLine.position.y = -10;
+            geometry = new THREE.CylinderGeometry( 0.2,0.2, 1, 12 );
+            let extrudingLineMaterial = new THREE.MeshStandardMaterial( {
+                //metalness: 1,   // between 0 and 1
+                //roughness: 0.5, // between 0 and 1
+                //envMap: cubeCamera.renderTarget.texture,
+                color: new THREE.Color("red"),
+                emissive:new THREE.Color("blue")
+                //flatShading:true,
+            } );                
 
-                extrudingLineGroup.add(extrudingLine)
+                
+            let extrudingLine =new THREE.Mesh( geometry, extrudingLineMaterial );
+            //extrudingLine.position.y = -1;
+            extrudingLine.scale.y=2;
+            extrudingLine.rotation.x = -Math.PI / 2;
+            //extrudingLine.position.y = -10;
 
-                scene.add( extrudingLineGroup );
+            extrudingLineGroup.add(extrudingLine)
 
-                //extrudingLine.scale.y=40;
-
-                //extrudingLineGroup.lookAt(100,00,0)
-
-                //extrudingLine.rotation.z= -Math.PI / 4;
-
-
-
-
-
-
-            //} );
+            scene.add( extrudingLineGroup );
                 
             function animate() {
 
@@ -780,10 +561,16 @@ $(function () {
                     firstFrame=false;
                 }
 
+                //get connection state and filepos.
+                var pstate = printerConnection.getState();
+
+                let curPrinterState=pstate.state;
+                let curPrintFilePos=pstate.filePos;
+
+                let curSimFilePos=0;//
+
                 if(printHeadSim && simPlaying)
                 {
-                    printHeadSim.updatePosition(delta*playbackRate);
-
                     var curState=printHeadSim.getCurPosition();
                     if(curState.filePos)
                         curSimFilePos=curState.filePos;
@@ -811,6 +598,8 @@ $(function () {
                         }
                     }
                     //todo. stop when past end.
+
+                    printHeadSim.updatePosition(delta*playbackRate);
 
                     //console.log(fpDelta)
 
@@ -1116,6 +905,10 @@ $(function () {
                 if(viewInitialized){
                     curJobName=job.name
 
+                    if(currentLayerCopy)
+                        myScene.remove(currentLayerCopy)
+                    currentLayerCopy=null;
+
                     if(gcodeProxy){
                         gcodeProxy.reset();
                     }
@@ -1138,6 +931,12 @@ $(function () {
                 if(viewInitialized);// && gcodeProxy)
                     {
                         curJobName=job
+
+                        
+                        if(currentLayerCopy)
+                            myScene.remove(currentLayerCopy)
+                        currentLayerCopy=null;
+
 
                         if(gcodeProxy){
                             gcodeProxy.reset();
