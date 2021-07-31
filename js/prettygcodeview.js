@@ -308,7 +308,7 @@ $(function () {
                     if(gcodeProxy)
                         $("#status-layer").html(currentCalculatedLayer.toString()+"/"+gcodeProxy.getLayerCount())
     
-                    if(curGcodePath!=newState.gcodePath && newState.gcodePath!="")
+                    if(curGcodePath!=newState.gcodePath && newState.gcodeName!="")
                     {
                         curGcodePath=newState.gcodePath;
                         updateJob(newState.gcodePath)

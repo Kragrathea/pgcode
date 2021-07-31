@@ -188,22 +188,24 @@ function PrinterConnection()
 
     this.updateStateFromMoonraker=function()
     {
-        let perDone = (lastVirtualSD.progress);
-        if(isNaN(perDone))
-            perDone=0;
-        perDone=parseInt(perDone*100);
-
-        var gcodePath=socketUrl.origin+'/server/files/gcodes/'+lastPrintStats.filename
-        this.curPrinterState.state=lastPrintStats.state.toLowerCase()
-        this.curPrinterState.gcodePath=gcodePath
-        this.curPrinterState.gcodeName=lastPrintStats.filename
-        this.curPrinterState.filePos=lastVirtualSD.file_position
-        this.curPrinterState.perDone=perDone
-        this.curPrinterState.printTime=lastPrintStats.total_duration
-        this.curPrinterState.printTimeLeft=0
-        this.curPrinterState.bedTemp=lastBedTemp
-        this.curPrinterState.toolTemp=lastExtruderTemp
-
+        if(lastVirtualSD){
+            let perDone = (lastVirtualSD.progress);
+            if(isNaN(perDone))
+                perDone=0;
+            perDone=parseInt(perDone*100);
+            this.curPrinterState.filePos=lastVirtualSD.file_position
+            this.curPrinterState.perDone=perDone
+        }
+        if(lastPrintStats){
+            let gcodePath=socketUrl.origin+'/server/files/gcodes/'+lastPrintStats.filename
+            this.curPrinterState.state=lastPrintStats.state.toLowerCase()
+            this.curPrinterState.gcodePath=gcodePath
+            this.curPrinterState.gcodeName=lastPrintStats.filename
+            this.curPrinterState.printTime=lastPrintStats.total_duration
+            this.curPrinterState.printTimeLeft=0
+            this.curPrinterState.bedTemp=lastBedTemp
+            this.curPrinterState.toolTemp=lastExtruderTemp
+        }
         //if(this.onUpdateState)
             this.onUpdateState(this.curPrinterState);
         //return(printerState)
