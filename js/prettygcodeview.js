@@ -315,6 +315,12 @@ $(function () {
                         $("#status-name").html(newState.gcodeName)
                     }
 
+                    if(newState.gcodeName && newState.gcodeName!="")
+                        $("#status-name").html(newState.gcodeName)
+                    else
+                        $("#status-name").html("Nothing loaded")
+
+
                     //let lDelta=printHeadSim.getDeltaTo(newState.filePos).toString();
                     //console.log(["Behind ",lDelta])
                 }

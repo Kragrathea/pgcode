@@ -2,14 +2,18 @@ function PrinterConnection()
 {
 
     var printerConnection=this;
-    var defaultPrinterUrl='http://fluiddpi.local';
+    //var defaultPrinterUrl=
+    var defaultMoonrakerPort="7125"
     this.detectConnection=function()
     {
-        let file_url = document.location.origin
+        //let file_url = document.location.origin
+        //let file_url = document.location.protocol+"://"+document.location.hostname+":"+document.location.port
+        let file_url = document.location.protocol+"://"+document.location.hostname+":"+defaultMoonrakerPort
+        console.log("detectConnection on url:"+file_url)
         let apiKey = '';
         if(file_url.startsWith("file")){
             //file_url='http://fluiddpi.local'
-            file_url=defaultPrinterUrl
+            file_url='http://fluiddpi.local:'+defaultMoonrakerPort;
             
             //force octoprint
             //file_url='http://fluiddpi.local:5000'
@@ -80,7 +84,9 @@ function PrinterConnection()
                 }                                
 
             }).catch((error) => {
-                console.error('Detect Error:', error);
+                console.error('AUTO Detect Error:', error);
+                console.error('Attempting direct Moonraker connection on:', file_url);
+                printerConnection.connectToMoonraker(file_url)
             });            
     }
 
