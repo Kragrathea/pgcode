@@ -76,6 +76,7 @@ or.
 
 http://pgcode url:7136?server=http:// moonraker machine url:port
 
+NOTE: For now URLS must be in the format http://servername:port without any trailing path info.
 # Troubleshooting connections
 For now to trouble shoot the connection you need to open the browsers developer console and look for warnings in the console.
 
