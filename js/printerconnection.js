@@ -8,7 +8,7 @@ function PrinterConnection()
     {
         //let file_url = document.location.origin
         //let file_url = document.location.protocol+"://"+document.location.hostname+":"+document.location.port
-        let file_url = document.location.protocol+"://"+document.location.hostname+":"+defaultMoonrakerPort
+        let file_url = document.location.protocol+"//"+document.location.hostname+":"+defaultMoonrakerPort
         console.log("detectConnection on url:"+file_url)
         let apiKey = '';
         if(file_url.startsWith("file")){
@@ -45,6 +45,8 @@ function PrinterConnection()
             .then(function (response) {
                 var contentLength = response.headers.get('Content-Length');
                 //console.log(response)
+                if(!response.ok)
+                    throw(status)
                 if (!response.body || !window['TextDecoder']) {
                     response.text().then(function (text) {
                         //console.log("Detect FINISH:"+text);
