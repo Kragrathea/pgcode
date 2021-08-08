@@ -660,7 +660,7 @@ function PrintHeadSimulator()
     this.setCurPosition=function(filePos){
 
         let newBufferCursor=0;
-        while(newBufferCursor<buffer.length>0)
+        while(newBufferCursor<buffer.length)
         {
             if(buffer[newBufferCursor].filePos>filePos)
             {    
@@ -673,6 +673,89 @@ function PrintHeadSimulator()
             newBufferCursor++;
         }
 
+    }
+
+
+    
+    this.getDeltaFromTo=function(startFilePos,filePos){
+
+        if(filePos<startFilePos)
+        {
+            console.log("error getDeltaFromTo wrong order"+[startFilePos,filePos])
+            return [0,0]
+        }
+        let startBufferCursor=0;
+        while(startBufferCursor<buffer.length)
+        {
+            if(buffer[startBufferCursor].filePos>=startFilePos)
+            {    
+                //console.log("Found startBufferCursor:"+startBufferCursor)
+                break;
+            }
+            startBufferCursor++;
+        }
+
+        let newBufferCursor=startBufferCursor;
+       
+        let count=0;
+        let distSq=0.0;
+        let dist=0.0;
+        let et=0.0;
+        let curPos = buffer[newBufferCursor].position.clone();
+        while(newBufferCursor<buffer.length)
+        {
+            if(buffer[newBufferCursor].filePos>=filePos)
+            {    
+                //console.log("Found endBufferCursor:"+newBufferCursor)
+                return [et,count,Math.sqrt(distSq)];
+            }
+            distSq+=curPos.distanceToSquared(buffer[newBufferCursor].position)
+
+            dist=curPos.distanceTo(buffer[newBufferCursor].position)
+            //dist is MM? rate is MM/Minute
+            et+=(dist*(buffer[newBufferCursor].rate/60.0))/1000.0
+
+            curPos = buffer[newBufferCursor].position.clone()
+            newBufferCursor++;
+            count++;
+
+        }
+        console.log("error getDeltaFromTo fell through"+[startFilePos,filePos])
+        return [0,0]
+    }
+
+    this.getDeltaTo=function(filePos){
+
+        if(bufferCursor>=buffer.length)
+        {
+            return [0,0]
+        }
+        let newBufferCursor=bufferCursor;
+//newBufferCursor=0;        
+        let count=0;
+        let distSq=0.0;
+        let dist=0.0;
+        let et=0.0;
+        let curPos = buffer[newBufferCursor].position.clone();
+        while(newBufferCursor<buffer.length)
+        {
+            if(buffer[newBufferCursor].filePos>=filePos)
+            {    
+                //console.log("getDeltaTo:"+count)
+                return [et,count,Math.sqrt(distSq)];
+            }
+            distSq+=curPos.distanceToSquared(buffer[newBufferCursor].position)
+
+            dist=curPos.distanceTo(buffer[newBufferCursor].position)
+            //dist is MM? rate is MM/Minute
+            et+=(dist*(buffer[newBufferCursor].rate/60.0))/1000.0
+
+            curPos = buffer[newBufferCursor].position.clone()
+            newBufferCursor++;
+            count++;
+
+        }
+        return [0,0]
     }
 
     //load from a file://
@@ -960,7 +1043,7 @@ function PrintHeadSimulator()
         //Convert the gcode feed rate (in MM/per min?) to rate per second.
         var rate = curState.rate/60.0;
     
-rate=rate*0.75;//why still too fast?        
+//rate=rate*0.75;//why still too fast?        
 //        rate=rate*10
 
         //adapt rate to keep up with buffer.
@@ -978,7 +1061,7 @@ rate=rate*0.75;//why still too fast?
 
         //dist head needs to travel this frame
         var dist = rate*timeStep
-        while(bufferCursor<buffer.length>0 && dist >0)//while some place to go and some dist left.
+        while(bufferCursor<buffer.length && dist >0)//while some place to go and some dist left.
         {
             //direction
             var vectToCurEnd=curEnd.position.clone().sub(curState.position);
@@ -1021,7 +1104,80 @@ rate=rate*0.75;//why still too fast?
             }
         }
     }
+
     this.updatePosition=updatePosition;
+
+    function updatePosition2(timeStep,playbackRate,linesBehind){
+        if(bufferCursor>=buffer.length)
+            return;//at end of buffer nothing to do  
+
+        //Convert the gcode feed rate (in MM/per min?) to rate per second.
+        var rate = curState.rate/60.0;
+    
+//rate=rate*0.75;//why still too fast?        
+//        rate=rate*10
+
+        //adapt rate to keep up with buffer.
+        //todo. Make dist based rather than just buffer size.
+        if(linesBehind<1)
+            return;
+        if(linesBehind>10)
+        {
+            rate=rate*(linesBehind/5.0);
+            //console.log(["Too Slow ",rate,linesBehind])
+        }
+        if(linesBehind<5)
+        {
+            rate=rate*(1.0/(linesBehind*5.0));
+            //console.log(["Too fast ",rate,linesBehind])
+        }
+
+        //dist head needs to travel this frame
+        var dist = rate*timeStep
+        while(bufferCursor<buffer.length && dist >0)//while some place to go and some dist left.
+        {
+            //direction
+            var vectToCurEnd=curEnd.position.clone().sub(curState.position);
+            var distToEnd=vectToCurEnd.length();
+            if(dist<distToEnd)//Inside current line?
+            {
+                //move pos the distance along line
+                vectToCurEnd.setLength(dist);
+                curState.position.add(vectToCurEnd);  
+                dist=0;//all done 
+            }else{
+                //move pos to end point.
+                curState.position.copy(curEnd.position);
+                curState.rate=curEnd.rate;
+                curState.filePos=curEnd.filePos;
+
+                //subract dist for next loop.
+                dist=dist-distToEnd;
+
+                //update lastZ for display of layers. 
+                if(curEnd.extrude && curEnd.position.z != curLastExtrudedZ )
+                {
+                    curLastExtrudedZ=curEnd.position.z;
+                }
+                //console.log([curState.position.z,curState.layerLineNumber])
+
+                //start on next buffer command
+                //buffer.shift();
+                if(bufferCursor< buffer.length-1)
+                {
+                    bufferCursor+=1;
+                    curEnd=buffer[bufferCursor];
+                    curState.layerLineNumber=curEnd.layerLineNumber;
+
+                    curState.rate=curEnd.rate;
+                    curState.extrude=curEnd.extrude;
+
+                }else
+                    return;//at end of buffer
+            }
+        }
+    }
+    this.updatePosition2=updatePosition2;
 
 }
 

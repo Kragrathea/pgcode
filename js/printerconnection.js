@@ -201,7 +201,7 @@ function PrinterConnection()
             this.curPrinterState.state=lastPrintStats.state.toLowerCase()
             this.curPrinterState.gcodePath=gcodePath
             this.curPrinterState.gcodeName=lastPrintStats.filename
-            this.curPrinterState.printTime=lastPrintStats.total_duration
+            this.curPrinterState.printTime=lastPrintStats.print_duration
             this.curPrinterState.printTimeLeft=0
             this.curPrinterState.bedTemp=lastBedTemp
             this.curPrinterState.toolTemp=lastExtruderTemp
@@ -316,11 +316,11 @@ function PrinterConnection()
                             }else if(sname=="extruder")
                             {
                                 lastExtruderTemp=msg.result.status["extruder"].temperature;
-                                $("#status-tooltemp").html(lastExtruderTemp.toFixed(1)+"°")
+                                $("#status-tooltemp").html(lastExtruderTemp.toFixed(1)+"&deg;")
                             }else if(sname=="heater_bed")
                             {
                                 lastBedTemp=msg.result.status[sname].temperature;
-                                $("#status-bedtemp").html(lastBedTemp.toFixed(1)+"°")                                   
+                                $("#status-bedtemp").html(lastBedTemp.toFixed(1)+"&deg;")                                   
                             }else{
                                 console.log("Unhandled status update:"+sname)
                                 console.log("Result:"+JSON.stringify(msg.result))
@@ -372,12 +372,12 @@ function PrinterConnection()
                                 {
                                     let pobj = msg.params[pnum][pname]
                                     lastExtruderTemp=pobj.temperature;
-                                    $("#status-tooltemp").html(lastExtruderTemp.toFixed(1)+"°")
+                                    $("#status-tooltemp").html(lastExtruderTemp.toFixed(1)+"&deg;")
                                 }else if(pname=="heater_bed")
                                 {
                                     let pobj = msg.params[pnum][pname]
                                     lastBedTemp=pobj.temperature;
-                                    $("#status-bedtemp").html(lastBedTemp.toFixed(1)+"°")
+                                    $("#status-bedtemp").html(lastBedTemp.toFixed(1)+"&deg;")
                                 }else if(!pname){
                                     //this case is for the single floating value that is last in the array. event time I think
                                     //console.log("param:"+JSON.stringify(msg.params[pnum]))
@@ -465,8 +465,8 @@ function PrinterConnection()
                             let msg = JSON.parse(rresult);
                             if(msg.temperature){
 
-                                $("#status-bedtemp").html(msg.temperature.bed.actual.toFixed(1)+"°")
-                                $("#status-tooltemp").html(msg.temperature.tool0.actual.toFixed(1)+"°")
+                                $("#status-bedtemp").html(msg.temperature.bed.actual.toFixed(1)+"&deg;")
+                                $("#status-tooltemp").html(msg.temperature.tool0.actual.toFixed(1)+"&deg;")
                             }
                             return myReader.read().then(processResult);
                         })

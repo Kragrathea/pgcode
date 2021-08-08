@@ -314,6 +314,9 @@ $(function () {
                         updateJob(newState.gcodePath)
                         $("#status-name").html(newState.gcodeName)
                     }
+
+                    //let lDelta=printHeadSim.getDeltaTo(newState.filePos).toString();
+                    //console.log(["Behind ",lDelta])
                 }
                 printerConnection.detectConnection();
 
@@ -575,31 +578,57 @@ $(function () {
                     if(curState.filePos)
                         curSimFilePos=curState.filePos;
 
-                    //adapt playback rate
-                    if(true){
-                        var fpDelta=curPrintFilePos-curSimFilePos;
+                    // //adapt playback rate
+                    // if(true){
+                    //     var fpDelta=curPrintFilePos-curSimFilePos;
 
-                        if(fpDelta>30000 || fpDelta<-1000){
-                            printHeadSim.setCurPosition(curPrintFilePos)
-                            fpDelta=0;
-                        }
-                        // if(fpDelta<0)
-                        //     playbackRate=0;
-                        else 
-                        if(fpDelta<500)
-                        {
-                            playbackRate=1/(-fpDelta/100);
-                            //console.log("Down throttle "+playbackRate)
-                        }else if(fpDelta>1500){
-                            playbackRate=fpDelta/750;
-                            //console.log("Up throttle "+playbackRate)
-                        }else{
-                            playbackRate=0.75;
-                        }
-                    }
+                    //     playbackRate=1.0
+
+                    //     if(fpDelta>30000 || fpDelta<-1000){
+                    //         printHeadSim.setCurPosition(curPrintFilePos)
+                    //         fpDelta=0;
+                    //     }
+                    //     // if(fpDelta<0)
+                    //     //     playbackRate=0;
+                    //     else 
+                    //     // if(fpDelta<500)
+                    //     // {
+                    //     //     playbackRate=1/(-fpDelta/100);
+                    //     //     console.log("Down throttle "+playbackRate)
+                    //     // }else if(fpDelta>1500){
+                    //     //     playbackRate=fpDelta/750;
+                    //     //     console.log("Up throttle "+playbackRate)
+                    //     // }else{
+                    //     //     playbackRate=0.75;
+                    //     // }
+
+                    //     if(fpDelta>10*200)
+                    //     {
+                    //         playbackRate=playbackRate*(fpDelta/5.0);
+                    //         console.log(["Too Slow ",playbackRate,fpDelta])
+                    //     }else 
+                    //     if(fpDelta<5*200)
+                    //     {
+                    //         playbackRate=playbackRate*(1.0/(fpDelta));
+                    //         console.log(["Too fast ",playbackRate,fpDelta])
+                    //     }
+
+
+                    // }
                     //todo. stop when past end.
 
-                    printHeadSim.updatePosition(delta*playbackRate);
+                    let lDelta=printHeadSim.getDeltaTo(curPrintFilePos);
+                    let linesBehind= lDelta[1];
+//                    let linesBehind= lDelta[2]/4.0;
+
+                    if(linesBehind>300 || linesBehind<-10){
+                        console.log(["Seeking. linesBehind:",linesBehind])
+                        printHeadSim.setCurPosition(curPrintFilePos)
+                        linesBehind=0;
+                    }
+
+                    //printHeadSim.updatePosition(delta*playbackRate);
+                    printHeadSim.updatePosition2(delta,1.0,linesBehind);
 
                     //console.log(fpDelta)
 
@@ -800,6 +829,94 @@ $(function () {
             animate();
         }
 
+        function startPlaybackAdjuster()
+        {
+
+            setInterval(function () {
+
+                //get connection state and filepos.
+                var pstate = printerConnection.getState();
+
+                let curPrinterState=pstate.state;
+                let curPrintFilePos=pstate.filePos;
+
+                let curState=printHeadSim.getCurPosition();
+                let curSimFilePos=curState.filePos;
+
+
+                //adapt playback rate
+                var fpDelta=curPrintFilePos-curSimFilePos;
+
+                if(fpDelta>30000 || fpDelta<-800){
+                    let lDelta=printHeadSim.getDeltaTo(curPrintFilePos).toString();
+                    console.log(["Seeking ",playbackRate,lDelta,fpDelta])
+                    //console.log(["Behind ",lDelta])
+
+                    printHeadSim.setCurPosition(curPrintFilePos-300)
+                    fpDelta=0;
+                    playbackRate=0.9
+                }else if(fpDelta<0){
+                    let lDelta=printHeadSim.getDeltaTo(curPrintFilePos).toString();
+                    //console.log(["Pause ",playbackRate,lDelta,fpDelta])
+                    playbackRate=0;//just pause if still under
+                }
+                else 
+                if(fpDelta>500)
+                {
+                    playbackRate=0.9+(fpDelta/1000.0);
+                    //console.log(["Slow ",playbackRate,lDelta,fpDelta])
+                }else 
+                if(fpDelta<200 && fpDelta>0)
+                {
+                    playbackRate=0.5-(1.0/fpDelta);
+                    //console.log(["Fast ",playbackRate,lDelta,fpDelta])
+                }else{
+                    //console.log(["OK ",playbackRate,lDelta,fpDelta])
+
+                }             
+                
+                if(playbackRate<0)
+                    playbackRate=0;
+                if(playbackRate>100)
+                    playbackRate=100;                    
+
+            }, 500);  
+
+        }
+        //startPlaybackAdjuster()
+
+
+        function startPlaybackStats()
+        {
+
+            let lastFilePos=0;
+            let lastPrintTime=0;
+            let interval=2*1000;
+            setInterval(function () {
+
+                //get connection state and filepos.
+                var pstate = printerConnection.getState();
+
+                let curPrinterState=pstate.state;
+                let curPrintFilePos=pstate.filePos;
+
+                let curState=printHeadSim.getCurPosition();
+                let curSimFilePos=curState.filePos;
+
+
+                //adapt playback rate
+                var fpDelta=curPrintFilePos-curSimFilePos;
+
+                //let lDelta=printHeadSim.getDeltaTo(curPrintFilePos);
+                let lDelta=printHeadSim.getDeltaFromTo(lastFilePos,curPrintFilePos);
+                console.log("PBStats:"+lDelta)
+                lastFilePos=curPrintFilePos;
+
+
+            }, interval);  
+
+        }
+        //startPlaybackStats()
         function resetCamera() {
 
             if(!cameraControls)//Make sure controls exist. 
