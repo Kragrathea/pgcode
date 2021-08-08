@@ -24,11 +24,12 @@ cd ~
 git clone https://github.com/Kragrathea/pgcode.git
 ```
 
-- Config nginx server for a new website called "pgcode" on port 7136
+Config nginx server for a new website called "pgcode" on port 7136
+- Copy the nginx config file from the pgcode directory to the nginx sites directory
 ```
-sudo nano /etc/nginx/sites-available/pgcode.local.conf
+sudo cp ~/pgcode/pgcode.local.conf /etc/nginx/sites-available/pgcode.local.conf
 ```
-Paste this into the conf and save.
+Nginx config file should look like this.
 ```
 server {
      listen 7136;
