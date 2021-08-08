@@ -6,6 +6,7 @@ PrettyGCode WebGL based GCode preview and simulator
 - Tested with desktop Chrome, Firefox, Edge and Safari. Works on mobile browsers if the GCode isn't too large.
 - Sync to Klipper/Moonraker/Fluidd print jobs in real time
 - Compatible with OBS Studio browser for easy Streaming (requires command line flag)
+- Drag drop GCode files to 3d window for quick preview
 
 # Screenshots
 ![Screen1](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_screen1.jpg)
