@@ -24,11 +24,12 @@ cd ~
 git clone https://github.com/Kragrathea/pgcode.git
 ```
 
-- Config nginx server for a new website called "pgcode" on port 7136
+Config nginx server for a new website called "pgcode" on port 7136
+- Copy the nginx config file from the pgcode directory to the nginx sites directory
 ```
-sudo nano /etc/nginx/sites-available/pgcode.local.conf
+sudo cp ~/pgcode/pgcode.local.conf /etc/nginx/sites-available/pgcode.local.conf
 ```
-Paste this into the conf and save.
+Nginx config file should look like this.
 ```
 server {
      listen 7136;
@@ -60,6 +61,8 @@ sudo systemctl reload nginx
 ```
 - Default port is 7136. 
 
+- You may have to enable [octoprint_compat] in moonraker.conf file. 
+
 # Connecting to Fluidd/Moonraker
 
 Assuming you installed on a machine with a local name of "fluiddpi" you can access the PrettyGCode page by using this url. 
@@ -76,6 +79,9 @@ or.
 
 http://pgcode url:7136?server=http:// moonraker machine url:port
 
+NOTE: For now URLS must be in the format http://servername:port without any trailing path info.
 # Troubleshooting connections
 For now to trouble shoot the connection you need to open the browsers developer console and look for warnings in the console.
+
+You may have to enable [octoprint_compat] in moonraker.conf file. 
 
