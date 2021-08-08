@@ -627,7 +627,7 @@ $(function () {
                     let linesBehind= lDelta[1];
 //                    let linesBehind= lDelta[2]/4.0;
 
-                    if(linesBehind>300 || linesBehind<-10){
+                    if(linesBehind>300 || linesBehind<0){
                         console.log(["Seeking. linesBehind:",linesBehind])
                         printHeadSim.setCurPosition(curPrintFilePos)
                         linesBehind=0;
