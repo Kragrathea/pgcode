@@ -1,5 +1,3 @@
-# DEV VERSION
-
 # PrettyGCode for Klipper
 PrettyGCode WebGL based GCode preview and simulator
 
@@ -18,8 +16,8 @@ PrettyGCode can now be installed using the Kiauh installer. This is by far the e
 
 https://github.com/th33xitus/kiauh
 
-On the main screen select option 1) [Install] then select PrettGCode:
-
+On the main Kiauh screen select Option 1) [Install] and then select PrettGCode:
+![InstallScreen1](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/installscreen1.jpg)
 
 Port can be set as part of installation. Default port is 7136
 
