@@ -11,57 +11,15 @@ PrettyGCode WebGL based GCode preview and simulator
 # Screenshots
 ![Screen1](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_screen1.jpg)
 
-# Stand Alone Installation (not recommended)
-- For stand alone install on a Raspberry PI you need to first install nginx. If you already have Fluidd installed this shouldn't be needed.
-- Install nginx. Then skip to below
+# Installation via Kiauh (Recommended)
+PrettyGCode can now be installed using the Kiauh installer. This is by far the easiest method to install.
 
-# Fluidd based install (recommended)
-From now on these instructions are assuming you are using Fluidd as the UI for Klipper/Moonraker. Eventually PrettyGCode will support other frontends like OctoPrint, Mainsail, DWC etc. 
-- First log into your Raspberry PI via telent or tty.
-- Clone repo into /home/pi/
-```
-cd ~
-git clone https://github.com/Kragrathea/pgcode.git
-```
+https://github.com/th33xitus/kiauh
 
-Config nginx server for a new website called "pgcode" on port 7136
-- Copy the nginx config file from the pgcode directory to the nginx sites directory
-```
-sudo cp ~/pgcode/pgcode.local.conf /etc/nginx/sites-available/pgcode.local.conf
-```
-Nginx config file should look like this.
-```
-server {
-     listen 7136;
-     listen [::]:7136;
-     server_name pgcode.local;
+On the main screen select option 1) [Install] then select PrettGCode:
 
-     root /home/pi/pgcode;
 
-     index pgcode.html;
-
-     location / {
-          try_files $uri $uri/ =404;
-     }
-}
-```
-- Sanity check. This should display any config errors
-```
-sudo nginx -t -c /etc/nginx/nginx.conf
-```
-
-- Enable site by making symbolic link
-```
-sudo ln -s /etc/nginx/sites-available/pgcode.local.conf  /etc/nginx/sites-enabled/pgcode.local.conf
-```
-
-- Restart nginx
-```
-sudo systemctl reload nginx
-```
-- Default port is 7136. 
-
-- You may have to enable [octoprint_compat] in moonraker.conf file. 
+Port can be set as part of installation. Default port is 7136
 
 # Connecting to Fluidd/Moonraker
 
@@ -83,7 +41,7 @@ NOTE: For now URLS must be in the format http://servername:port without any trai
 
 
 # Moonraker config
-Depending on your setup you may have to edit Moonraker.conf to allow access. Check that the machine you are browsing from is included in the cors_domains and/or trusted_clients sections. You may also have to turn on octoprint_compat
+PrettyGCode should run as installed. But, depending on your setup, you may have to edit Moonraker.conf to allow access. Check that the machine you are browsing from is included in the cors_domains and/or trusted_clients sections. You may also have to turn on octoprint_compat
 
 Partial moonraker.conf
 ```
