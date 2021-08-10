@@ -80,6 +80,43 @@ or.
 http://pgcode url:7136?server=http:// moonraker machine url:port
 
 NOTE: For now URLS must be in the format http://servername:port without any trailing path info.
+
+
+# Moonraker config
+Depending on your setup you may have to edit Moonraker.conf to allow access. Check that the machine you are browsing from is included in the cors_domains and/or trusted_clients sections. You may also have to turn on octoprint_compat
+
+Partial moonraker.conf
+```
+[authorization]
+enabled: True
+cors_domains:
+  *.local
+  *.lan
+  *://app.fluidd.xyz
+  *
+
+trusted_clients:
+    10.0.0.0/8
+    127.0.0.0/8
+    169.254.0.0/16
+    172.16.0.0/12
+    192.168.0.0/16
+    192.168.1.0/160
+    FE80::/10
+    ::1/128
+
+# enables support for slicer uploads via partial Octoprint API impl
+[octoprint_compat]
+```
+# Fluidd config
+If you haven't already you may have to enable SD support in Fluidd
+
+Partial Fluidd client.cfg
+```
+[virtual_sdcard]
+path: ~/gcode_files
+```
+
 # Troubleshooting connections
 For now to trouble shoot the connection you need to open the browsers developer console and look for warnings in the console.
 
