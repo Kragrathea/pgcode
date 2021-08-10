@@ -330,7 +330,7 @@ $(function () {
 
                 //show fps unless url param "nofps"
                 let searchParams = new URLSearchParams(window.location.search)
-                if(!searchParams.has('nofps'))
+                if(searchParams.has('fps'))
                 {
                     stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
                     $("body").append( stats.dom );

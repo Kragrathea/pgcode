@@ -32,8 +32,8 @@
         #pgccanvas{
             width: 100%;
             height: 100%;
-            /* background-color: #0a0f79cf; */
-            background-image: url(img/DarkBluePaper.jpg);
+            background-color: #1e1e20;
+            /* background-image: url(img/DarkBluePaper.jpg); */
             background-size: cover;
         }
         .pgclabel{
@@ -126,6 +126,21 @@
     </style>
 
     <canvas id="pgccanvas" ></canvas>
+    <div style="
+    position: absolute;
+    top: 12px;
+    left: 24px;
+    color: #38bfff;
+    z-index: 10;
+    /* background: rgb(119 85 85 / 45%); */
+    font-family: 'Brush Script MT', cursive;
+    font-size: large;
+    text-shadow: 2px 2px 2px black;
+            ">
+    <a href='https://github.com/Kragrathea/pgcode'>
+        <span style="color: #a385ff;">Pretty</span><span style="color: #42e042;">G</span><span style="color: cyan;">Code</span>
+    </a></div>
+
     <div id="pgc2dcanvas" style='position: absolute;top:45px;left:25px;width:25%;height:25%;border:1px solid white'></div>
     <input type="range" id="layer-slider" name="layer" min="0" value='100' max="100" orient="vertical" style="-webkit-appearance: slider-vertical;position:absolute;width:25px;right:35px;top:60px;bottom:35px;">
     <div style="position: absolute;left:1%;bottom:20px;">
