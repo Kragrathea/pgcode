@@ -29,12 +29,45 @@ function PrinterConnection()
             file_url=searchParams.get("server")
         if(searchParams.has('apiKey'))
             apiKey='?apikey='+searchParams.get("apiKey")
+        if(searchParams.has('user') && searchParams.has('pass'))
+	{
+	    const formData = new FormData();
+
+	    formData.append('username', searchParams.get("user"));
+	    formData.append('password', searchParams.get("pass"));
+
+	    var loginRequest = new Request(file_url+"/access/login",
+            {
+                method: 'POST',
+		body: formData
+            }
+            );
+	    fetch(loginRequest)
+             .then(function (response) {
+                var contentLength = response.headers.get('Content-Length');
+                //console.log(response)
+                if(!response.ok)
+                    throw(status)
+                if (!response.body || !window['TextDecoder']) {
+                    response.text().then(function (text) {
+                        //console.log("Detect FINISH:"+text);
+                        //finishLoading();
+                    });
+                } else {
+			response.json().then(function(data) {
+				document.authToken = data.result.token;
+			});
+		}
+		});
+
+	}
 
         var myRequest = new Request(file_url+"/api/version"+apiKey,
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'text/plain'
+                    'Content-Type': 'text/plain',
+		    'Authorization': 'Bearer '+document.authToken
                 },
                 mode: 'cors',
                 cache: 'no-cache',
@@ -104,14 +137,15 @@ function PrinterConnection()
                 //todo. put this somewhere else
             $("#status-source").html("Octoprint")
 
-            var file_url = host+"/api/job"+apiKey;//'/downloads/files/local/xxx.gcode';
+            var file_url = serverUrl+"/api/printer"+apiKey;//'/downloads/files/local/xxx.gcode';
             //var file_url = "/api/job";//'/downloads/files/local/xxx.gcode';
 
             var myRequest = new Request(file_url,
                 {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'text/plain'
+                        'Content-Type': 'text/plain',
+			'Authorization': 'Bearer '+document.authToken
                     },
                     mode: 'cors',
                     cache: 'no-cache',
@@ -277,7 +311,11 @@ function PrinterConnection()
         let socketHost=socketUrl.host;
         if ("WebSocket" in window)
         {
-            var ws = new WebSocket("ws://"+socketHost+"/websocket");
+	    var wsUrl = "ws://"+socketHost+"/websocket";
+	    if (document.authToken)
+		wsUrl = wsUrl+"?access_token="+document.authToken;
+
+            var ws = new WebSocket(wsUrl);
             ws.onopen = function()
             {
                 console.log("Connected to Moonraker on:ws://"+socketHost)
@@ -443,7 +481,8 @@ function PrinterConnection()
                 {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'text/plain'
+                        'Content-Type': 'text/plain',
+			'Authorization': 'Bearer '+document.authToken
                     },
                     mode: 'cors',
                     cache: 'no-cache',

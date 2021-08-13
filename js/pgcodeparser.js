@@ -775,7 +775,8 @@ function PrintHeadSimulator()
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'text/plain'
+                    'Content-Type': 'text/plain',
+		    'Authorization': 'Bearer '+document.authToken
                 },
                 mode: 'cors',
                 cache: 'no-cache' 
