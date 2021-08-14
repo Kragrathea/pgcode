@@ -1,3 +1,5 @@
+# DEV VERSION
+
 # PrettyGCode for Klipper
 PrettyGCode WebGL based GCode preview and simulator
 
@@ -38,6 +40,23 @@ or.
 http://pgcode url:7136?server=http:// moonraker machine url:port
 
 NOTE: For now URLS must be in the format http://servername:port without any trailing path info.
+
+# Using an API key to connect
+If you have Moonraker secured behind a user name and password then you can use an API key to allow PrettyGCode to connect. Specify the API key in the URL like this:
+
+http://fluiddpi.local:7136?apiKey=<moonraker api key>
+ 
+or
+http://fluiddpi.local:7136?server=http://fluiddpi.local:7125&apiKey=<moonraker api key>
+ 
+You can get your API key in Fluidd under Settings->Authentication. Look for a button that says API KEY next to where you add users.
+     
+# Setting printer bed volume
+By default the bed volume is 300x300 with the origin at the corner. If that doesn't match your printer you can adjust it via a URL parameter. Supported origins are currently, "center" and "lowerleft"      
+
+For example this will set a 200x200 volume with the origin at the "center"
+     
+http://fluiddpi.local:7136?bed.width=200&bed.height=200&bed.origin=center
 
 # Moonraker config
 PrettyGCode should run as installed. But, depending on your setup, you may have to edit Moonraker.conf to allow access. Check that the machine you are browsing from is included in the cors_domains and/or trusted_clients sections. You may also have to turn on octoprint_compat
