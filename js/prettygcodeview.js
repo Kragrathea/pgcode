@@ -944,6 +944,17 @@ $(function () {
                 origin: "lowerleft",
                 formFactor: "",//todo
             };
+
+            let searchParams = new URLSearchParams(window.location.search)
+            if(searchParams.has('bed.width'))
+                bedVolume.width=parseInt(searchParams.get('bed.width'))
+            if(searchParams.has('bed.height'))
+                bedVolume.height=parseInt(searchParams.get('bed.height'))
+            if(searchParams.has('bed.origin'))
+                bedVolume.origin=searchParams.get('bed.origin')
+
+
+
             return;
 
 
