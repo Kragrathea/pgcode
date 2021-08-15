@@ -659,7 +659,11 @@ $(function () {
                                 extrudingLineGroup.visible=true;
                                 var vectToCurEnd=curState.position.clone().sub(curState.startPoint);
                                 var dist=vectToCurEnd.length();
-
+                                if(dist<0.0001)
+                                {    
+                                    dist=0.0001; //fix 0 distance bug.
+                                    //console.log("here")
+                                }
                                 extrudingLineGroup.children[0].scale.y=dist;
                                 extrudingLineGroup.position.copy(curState.startPoint);
 
