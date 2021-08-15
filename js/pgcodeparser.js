@@ -681,8 +681,13 @@ function PrintHeadSimulator()
 
         if(filePos<startFilePos)
         {
-            console.log("error getDeltaFromTo wrong order"+[startFilePos,filePos])
-            return [0,0]
+            console.log("warning getDeltaFromTo wrong order"+[startFilePos,filePos])
+            
+            //swap
+            let tt=filePos
+            filePos=startFilePos
+            startFilePos=tt;
+            //return [0,0]
         }
         let startBufferCursor=0;
         while(startBufferCursor<buffer.length)
@@ -707,7 +712,7 @@ function PrintHeadSimulator()
             if(buffer[newBufferCursor].filePos>=filePos)
             {    
                 //console.log("Found endBufferCursor:"+newBufferCursor)
-                return [et,count,Math.sqrt(distSq)];
+                return {seconds:et,lines:count,distance:Math.sqrt(distSq)};
             }
             distSq+=curPos.distanceToSquared(buffer[newBufferCursor].position)
 
@@ -771,14 +776,20 @@ function PrintHeadSimulator()
     //load from a url
     this.loadGcode=function(file_url)
     {
+        let searchParams = new URLSearchParams(window.location.search)
+        let apiKey=searchParams.get('apiKey')
+        if(!apiKey)
+            apiKey=''
+
         var myRequest = new Request(file_url,
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'text/plain'
+                    'Content-Type': 'text/plain',
+                    "X-Api-Key": apiKey
                 },
                 mode: 'cors',
-                cache: 'no-cache' 
+                cache: 'no-cache'
             }
         );
         fetch(myRequest)
