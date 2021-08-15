@@ -390,18 +390,18 @@ function GCodeObject3(settings=null) {
             if (child.name.startsWith("layer#")) {
                 var filePositions=child.userData.filePositions;
                 var fpMin=filePositions[0];
-                var fpMax = filePositions[filePositions.length];
+                var fpMax = filePositions[filePositions.length-1];
                 if (fpMax<filePosition) { //way before.
                     child.visible = true;
 
-                    //handle hiding travels.
+                   //handle hiding travels.
                     if(!window.PGCSettings.showTravel && child.userData.isTravel)
                         child.visible=false;
 
                     if(child.geometry.type!="BufferGeometry")
                         child.geometry.maxInstancedCount=child.userData.numLines;
                     else
-                        child.geometry.setDrawRange(0,child.userData.numLines)
+                        child.geometry.setDrawRange(0,child.userData.numLines*2)//*2 for plain lines
                 }else if (fpMin>filePosition) { //way after
                     child.visible = false;
                 }else //must be during. right?
@@ -425,7 +425,7 @@ function GCodeObject3(settings=null) {
                     if(child.geometry.type!="BufferGeometry")
                         child.geometry.maxInstancedCount=Math.min(count,child.userData.numLines);
                     else
-                        child.geometry.setDrawRange(0,Math.min(count,child.userData.numLines));
+                        child.geometry.setDrawRange(0,Math.min(count,child.userData.numLines*2));//*2 for plain lines
                     syncLayerNumber = child.userData.layerNumber
                 }
             }
