@@ -404,7 +404,13 @@ $(function () {
 
             camera2d = new THREE.OrthographicCamera( frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 1000 );
             camera2d.up.set(0,1,0);
-            camera2d.position.set(bedVolume.width/2, bedVolume.depth/2, 500);
+
+            if (bedVolume.origin == "lowerleft")
+                camera2d.position.set(bedVolume.width/2, bedVolume.depth/2, 500);
+            else
+                camera2d.position.set(0, 0, 500);;
+
+            
 
             var canvas = $("#pgccanvas");
             cameraControls = new CameraControls(camera, canvas[0]);
