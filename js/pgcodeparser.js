@@ -679,6 +679,10 @@ function PrintHeadSimulator()
     
     this.getDeltaFromTo=function(startFilePos,filePos){
 
+        if(filePos==startFilePos)
+        {
+            return {seconds:0,lines:0,distance:0};
+        }
         if(filePos<startFilePos)
         {
             console.log("warning getDeltaFromTo wrong order"+[startFilePos,filePos])
