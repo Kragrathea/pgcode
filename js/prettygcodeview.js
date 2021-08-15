@@ -580,9 +580,7 @@ $(function () {
 
                 if(printHeadSim && simPlaying)
                 {
-                    var curState=printHeadSim.getCurPosition();
-                    if(curState.filePos)
-                        curSimFilePos=curState.filePos;
+
 
                     // //adapt playback rate
                     // if(true){
@@ -624,7 +622,7 @@ $(function () {
                     //todo. stop when past end.
 
                     let lDelta=printHeadSim.getDeltaTo(curPrintFilePos);
-                    let linesBehind= lDelta[1];
+                    let linesBehind= lDelta.lines;
 //                    let linesBehind= lDelta[2]/4.0;
 
                     if(linesBehind>300 || linesBehind<0){
@@ -634,7 +632,11 @@ $(function () {
                     }
 
                     //printHeadSim.updatePosition(delta*playbackRate);
-                    printHeadSim.updatePosition2(delta,1.0,linesBehind);
+                    printHeadSim.updatePosition2(delta,1.0,linesBehind,curPrintFilePos);
+
+                    var curState=printHeadSim.getCurPosition();
+                    if(curState.filePos)
+                        curSimFilePos=curState.filePos;
 
                     //console.log(fpDelta)
 

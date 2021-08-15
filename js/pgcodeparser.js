@@ -737,7 +737,13 @@ function PrintHeadSimulator()
 
         if(bufferCursor>=buffer.length)
         {
-            return [0,0]
+            return {seconds:0,lines:0,distance:0};
+        }
+
+        if(buffer[bufferCursor].filePos>filePos)
+        {
+            console.log("Overflow??")
+            console.log([buffer[bufferCursor].filePos,filePos])
         }
         let newBufferCursor=bufferCursor;
 //newBufferCursor=0;        
@@ -750,8 +756,10 @@ function PrintHeadSimulator()
         {
             if(buffer[newBufferCursor].filePos>=filePos)
             {    
-                //console.log("getDeltaTo:"+count)
-                return [et,count,Math.sqrt(distSq)];
+                //console.log("getDeltaTo:"+[buffer[newBufferCursor].filePos,filePos])
+                //return [et,count,Math.sqrt(distSq)];
+                return {seconds:et,lines:count,distance:Math.sqrt(distSq)};
+
             }
             distSq+=curPos.distanceToSquared(buffer[newBufferCursor].position)
 
@@ -764,7 +772,7 @@ function PrintHeadSimulator()
             count++;
 
         }
-        return [0,0]
+        return {seconds:0,lines:0,distance:0};
     }
 
     //load from a file://
@@ -1122,7 +1130,7 @@ function PrintHeadSimulator()
 
     this.updatePosition=updatePosition;
 
-    function updatePosition2(timeStep,playbackRate,linesBehind){
+    function updatePosition2(timeStep,playbackRate,linesBehind,maxFilePos){
         if(bufferCursor>=buffer.length)
             return;//at end of buffer nothing to do  
 
@@ -1146,10 +1154,10 @@ function PrintHeadSimulator()
             rate=rate*(1.0/(linesBehind*5.0));
             //console.log(["Too fast ",rate,linesBehind])
         }
-
+     
         //dist head needs to travel this frame
         var dist = rate*timeStep
-        while(bufferCursor<buffer.length && dist >0)//while some place to go and some dist left.
+        while((bufferCursor<buffer.length) && (dist >0))//while some place to go and some dist left.
         {
             //direction
             var vectToCurEnd=curEnd.position.clone().sub(curState.position);
@@ -1180,6 +1188,13 @@ function PrintHeadSimulator()
                 //buffer.shift();
                 if(bufferCursor< buffer.length-1)
                 {
+                    //Done if next would go past the maxFilePos
+                    if( buffer[bufferCursor+1].filePos>=maxFilePos)
+                    {
+                        //console.log("early")
+                        //console.log([buffer[bufferCursor].filePos,maxFilePos])                
+                        break;
+                    }
                     bufferCursor+=1;
                     curEnd=buffer[bufferCursor];
                     curState.layerLineNumber=curEnd.layerLineNumber;
