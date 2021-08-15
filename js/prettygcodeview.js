@@ -922,7 +922,9 @@ $(function () {
             }, interval);  
 
         }
-        //startPlaybackStats()
+        let searchParams = new URLSearchParams(window.location.search)
+        if(searchParams.has('playstats'))
+            startPlaybackStats()
 
         function resetCamera() {
 
