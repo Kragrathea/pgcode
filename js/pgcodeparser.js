@@ -742,8 +742,8 @@ function PrintHeadSimulator()
 
         if(buffer[bufferCursor].filePos>filePos)
         {
-            console.log("Overflow??")
-            console.log([buffer[bufferCursor].filePos,filePos])
+            //console.log("Overflow??")
+            //console.log([buffer[bufferCursor].filePos,filePos])
         }
         let newBufferCursor=bufferCursor;
 //newBufferCursor=0;        
