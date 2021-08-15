@@ -914,8 +914,8 @@ $(function () {
                 var fpDelta=curPrintFilePos-curSimFilePos;
 
                 //let lDelta=printHeadSim.getDeltaTo(curPrintFilePos);
-                let lDelta=printHeadSim.getDeltaFromTo(lastFilePos,curPrintFilePos);
-                console.log("PBStats:"+lDelta)
+                let behind=printHeadSim.getDeltaFromTo(lastFilePos,curPrintFilePos);
+                console.log("Behind Stats:"+JSON.stringify(behind))
                 lastFilePos=curPrintFilePos;
 
 
@@ -923,6 +923,7 @@ $(function () {
 
         }
         //startPlaybackStats()
+
         function resetCamera() {
 
             if(!cameraControls)//Make sure controls exist. 
