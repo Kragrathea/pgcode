@@ -3,27 +3,11 @@ function PrinterConnection()
 
     var printerConnection=this;
     //var defaultPrinterUrl=
-    var defaultMoonrakerPort="7125"
-    this.detectConnection=function()
+    //var defaultMoonrakerPort="7125"
+    this.detectConnection=function(serverUrl,apiKey)
     {
-        let serverUrl = document.location.protocol+"//"+document.location.hostname+":"+defaultMoonrakerPort
-        console.log("detectConnection on url:"+serverUrl)
-        let apiKey = '';
-        if(serverUrl.startsWith("file")){
-            //file_url='http://fluiddpi.local'
-            serverUrl='http://fluiddpi.local:'+defaultMoonrakerPort;
-            
-            console.log("Running from file. Setting file_url:"+serverUrl)
-        }
 
-
-        let searchParams = new URLSearchParams(window.location.search)
-        if(searchParams.has('server'))
-            serverUrl=searchParams.get("server")
-        if(searchParams.has('apiKey'))
-            apiKey='?apikey='+searchParams.get("apiKey")
-
-        var myRequest = new Request(serverUrl+"/api/version"+apiKey,
+        var myRequest = new Request(serverUrl+"/api/version",
             {
                 method: 'GET',
                 headers: {
@@ -40,7 +24,10 @@ function PrinterConnection()
                 var contentLength = response.headers.get('Content-Length');
                 //console.log(response)
                 if(!response.ok)
-                    throw(status)
+                {
+                    console.log(response.status)
+                    throw(response.status+":"+response.statusText)
+                }
                 if (!response.body || !window['TextDecoder']) {
                     response.text().then(function (text) {
                         //console.log("Detect FINISH:"+text);
@@ -59,13 +46,14 @@ function PrinterConnection()
                         let rresult = decoder.decode(result.value, { stream: true });
                         let msg = JSON.parse(rresult);
                         
-                        if(msg.error)
+                        if(msg.error){
                             console.log("Detect ERROR:"+rresult);
+                        }
                         else{
                             if(msg.text && msg.text.toLowerCase().indexOf("moonraker")>-1){
                                 console.log("Detected Moonraker on:"+serverUrl)
                                 console.log(msg.text)
-                                printerConnection.connectToMoonraker(serverUrl)
+                                printerConnection.connectToMoonraker(serverUrl,apiKey)
                             }else if(msg.text && msg.text.toLowerCase().indexOf("octoprint")>-1){
                                 console.log("Detected Octoprint on:"+serverUrl)
                                 console.log(msg.text)
@@ -81,15 +69,34 @@ function PrinterConnection()
 
             }).catch((error) => {
                 console.error('AUTO Detect Error:', error);
+                if(error.message=='Failed to fetch')
+                {
+                    console.log("Cant connect. Connection refused?")
+                }
+                if(error.message=='403:FORBIDDEN' || '401:Unauthorized')
+                {
+                    console.log("Cant connect. API Key bad or missing?")
+                }                
                 console.error('Attempting direct Moonraker connection on:', serverUrl);
-                printerConnection.connectToMoonraker(serverUrl)
+                printerConnection.connectToMoonraker(serverUrl,apiKey)
             });            
     }
 
     var forceDisconnect=false;//not used?
+    var currentServerUrl=''
+    var currentApiKey=''
+    this.getConnectionInfo=function()
+    {
+        return{server:currentServerUrl,apiKey:currentApiKey}
+    }
     this.connectToOctoprint=function(serverUrl,apiKey)
     {
+
+        currentServerUrl=serverUrl;
+        currentApiKey=apiKey;
+
         let host=serverUrl;
+
         setInterval(function () {
 
             if(forceDisconnect)
@@ -98,14 +105,15 @@ function PrinterConnection()
                 //todo. put this somewhere else
             $("#status-source").html("Octoprint")
 
-            var file_url = host+"/api/job"+apiKey;//'/downloads/files/local/xxx.gcode';
+            var file_url = host+"/api/job";//'/downloads/files/local/xxx.gcode';
             //var file_url = "/api/job";//'/downloads/files/local/xxx.gcode';
 
             var myRequest = new Request(file_url,
                 {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'text/plain'
+                        'Content-Type': 'text/plain',
+                        "X-Api-Key": apiKey
                     },
                     mode: 'cors',
                     cache: 'no-cache',
@@ -143,6 +151,9 @@ function PrinterConnection()
                             }
                             if(msg.state){
                                 //console.log(msg.progress.filepos)
+                                //todo. Find a more robust way to track connection status
+                                printerConnection.curPrinterState.connected=true;
+
                                 printerConnection.curPrinterState.filePos=msg.progress.filepos
                                 printerConnection.curPrinterState.state=msg.state.toLowerCase();
                             }                                
@@ -150,7 +161,7 @@ function PrinterConnection()
                                 //console.log(msg.job.file.path)
                                 if(msg.job.file.path){
                                     printerConnection.curPrinterState.gcodeName=msg.job.file.path
-                                    printerConnection.curPrinterState.gcodePath=host+'/downloads/files/local/'+msg.job.file.path+apiKey
+                                    printerConnection.curPrinterState.gcodePath=host+'/downloads/files/local/'+msg.job.file.path+"?apikey="+apiKey
                                 }
                             }
 
@@ -204,7 +215,8 @@ function PrinterConnection()
             this.curPrinterState.gcodePath=gcodePath
             this.curPrinterState.gcodeName=lastPrintStats.filename
             this.curPrinterState.printTime=lastPrintStats.print_duration
-            this.curPrinterState.printTimeLeft=0
+            let totalPrintTime=(1.0/lastVirtualSD.progress)*(lastPrintStats.print_duration);
+            this.curPrinterState.printTimeLeft=totalPrintTime-lastPrintStats.print_duration
             this.curPrinterState.bedTemp=lastBedTemp
             this.curPrinterState.toolTemp=lastExtruderTemp
         }
@@ -301,15 +313,18 @@ function PrinterConnection()
         })
     }
 
-    this.getOneShotToken=function(host)
+    this.getOneShotToken=function(host,apiKey)
     {
         return new Promise(function(resolve, reject) {
 
-            let searchParams = new URLSearchParams(window.location.search)
-            if(!searchParams.has('apiKey'))
-                resolve("")//no apikey provided
 
-            let apiKey=searchParams.get('apiKey')
+//todo. test getting a oneshot with a blank apikey
+
+            //let searchParams = new URLSearchParams(window.location.search)
+            //if(!apiKey)
+            //    resolve("")//no apikey provided
+
+            //let apiKey=searchParams.get('apiKey')
             var myRequest = new Request(host+"/access/oneshot_token",
                 {
                     method: 'GET',
@@ -327,7 +342,10 @@ function PrinterConnection()
                     var contentLength = response.headers.get('Content-Length');
                     //console.log(response)
                     if(!response.ok)
-                        throw(status)
+                    {
+                        console.log(response.status)
+                        throw(response.status+":"+response.statusText)
+                    }
                     if (!response.body || !window['TextDecoder']) {
                         response.text().then(function (text) {
                         });
@@ -353,6 +371,14 @@ function PrinterConnection()
 
                 }).catch((error) => {
                     console.error('Error getOneShotToken:', error);
+                    if(error.message=='Failed to fetch')
+                    {
+                        console.log("Cant connect. Connection refused?")
+                    }
+                    if(error.message=='403:FORBIDDEN' || '401:Unauthorized')
+                    {
+                        console.log("Cant connect. API Key bad or missing?")
+                    }  
                     reject();
                     //console.error('Attempting direct Moonraker connection on:', file_url);
                     //printerConnection.connectToMoonraker(file_url)
@@ -360,11 +386,15 @@ function PrinterConnection()
         });
     }
 
-    this.connectToMoonraker=function(serverUrl)
+    this.connectToMoonraker=function(serverUrl,apiKey)
     {
         //this.moonrakerLogin(serverUrl).then(result=>alert(result))
-        
-        this.getOneShotToken(serverUrl).then(result=>{
+        currentServerUrl=serverUrl;
+
+
+        currentApiKey=apiKey;
+
+        this.getOneShotToken(serverUrl,apiKey).then(result=>{
 
             socketUrl=new URL(serverUrl);
             let socketHost=socketUrl.host;
@@ -375,7 +405,11 @@ function PrinterConnection()
                 var ws = new WebSocket(socketUrl);
                 ws.onopen = function()
                 {
+                    
                     console.log("Connected to Moonraker on:ws://"+socketHost)
+
+                    printerConnection.curPrinterState.connected=true;
+
                     $("#status-source").html("Moonraker ")
     
                     //{"result": {"objects": ["webhooks", "configfile", "mcu", "gcode_move", "print_stats", "virtual_sdcard", "pause_resume", "display_status", 
@@ -508,10 +542,12 @@ function PrinterConnection()
     
                 ws.onclose = function()
                 { 
+                    this.curPrinterState.connected=false;
                     alert("Disconnected from printer")
                 };
     
                 ws.onerror = function(error){
+                    this.curPrinterState.connected=false;
                     console.log("Error connecting wsock:"+error)
                 }
             }
@@ -520,11 +556,6 @@ function PrinterConnection()
             {
             // The browser doesn't support WebSocket
             }
-            
-            let searchParams = new URLSearchParams(window.location.search)
-            let apiKey=searchParams.get('apiKey')
-            if(!apiKey)
-                apiKey=''
             printerConnection.startTempUpdate(serverUrl,apiKey);
         })
 

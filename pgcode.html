@@ -7,6 +7,26 @@
             position: absolute;
             z-index:10;
         }
+        .pgconnection {
+            background: url("img/disconnected-icon.png") no-repeat scroll 0 0 transparent;
+            background-size: contain;
+            color: #a72323;
+            cursor: pointer;
+            font-weight: bold;
+            height: 38px;
+            width: 35px;
+            top: 20px;
+            right: 70px;
+            position: absolute;
+            z-index:10;
+            border:2px solid red;
+        }
+        .pgconnection.connected{
+            background: url("img/connected-icon.png") no-repeat scroll 0 0 transparent;
+            background-size: contain;
+            color: #a72323;
+            border:2px solid rgb(1, 131, 29);
+        }
 
         .pghidden {
             display:none;
@@ -100,30 +120,7 @@
             color: white;
         }
 
-        /* Special styling for WebKit/Blink */
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            border: 1px solid #000000;
-            height: 36px;
-            width: 16px;
-            border-radius: 3px;
-            background: green;
-            cursor: pointer;
-            margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
-            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
-        }
-            /* All the same stuff for Firefox */
-        input[type=range]::-moz-range-thumb {
-            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-            border: 1px solid #000000;
-            height: 36px;
-            width: 16px;
-            border-radius: 3px;
-            background: green;
-            cursor: pointer;
-            }       
-
-        h1 { font-family: "Architects Daughter"; font-size: 24px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; } h3 { font-family: "Architects Daughter"; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 15.4px; } p { font-family: "Architects Daughter"; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; } blockquote { font-family: "Architects Daughter"; font-size: 21px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px; } pre { font-family: "Architects Daughter"; font-size: 13px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 18.5714px; }
+        /* h1 { font-family: "Architects Daughter"; font-size: 24px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; } h3 { font-family: "Architects Daughter"; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 15.4px; } p { font-family: "Architects Daughter"; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; } blockquote { font-family: "Architects Daughter"; font-size: 21px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px; } pre { font-family: "Architects Daughter"; font-size: 13px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 18.5714px; } */
     </style>
 
     <canvas id="pgccanvas" ></canvas>
@@ -147,6 +144,7 @@
     <div style="position: absolute;left:1%;bottom:20px;">
     </div>
     <button class="pgsettingstoggle" title="Toggle settings window">&#9881</button>
+    <button class="pgconnection" title="Show connection info"></button>
     <div id='mygui' class='xgwin pghidden'></div>
 
     <div class='pgclabel'>
@@ -186,6 +184,188 @@
             </div> -->
         </div>        
     </div>
+
+    <style>
+        body {
+            font-family:'Helvetica', cursive;
+        }
+        form{
+
+        }
+        
+        /* Full-width input fields */
+        input[type=text], input[type=password] {
+          width: 100%;
+          padding: 12px 20px;
+          margin: 8px 0;
+          display: inline-block;
+          border: 1px solid #ccc;
+          box-sizing: border-box;
+        }
+        
+        /* Set a style for all buttons */
+        form button {
+          background-color: #04AA6D;
+          color: white;
+          padding: 14px 20px;
+          margin: 8px 0;
+          border: none;
+          cursor: pointer;
+          /* width: 100%; */
+        }
+        
+        button:hover {
+          opacity: 0.8;
+        }
+        
+        /* Extra styles for the cancel button */
+        .cancelbtn {
+          width: auto;
+          padding: 14px 20px;
+          background-color: #f44336;
+        }
+        
+        /* Center the image and position the close button */
+        .imgcontainer {
+          text-align: center;
+          margin: 24px 0 12px 0;
+          position: relative;
+        }
+        
+        img.avatar {
+          width: 40%;
+          border-radius: 50%;
+        }
+        
+        .container {
+          padding: 16px;
+        }
+        
+        span.psw {
+          float: right;
+          padding-top: 16px;
+        }
+        
+        /* The Modal (background) */
+        .modal {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 1; /* Sit on top */
+          left: 0;
+          top: 0;
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgb(0,0,0); /* Fallback color */
+          background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+          padding-top: 60px;
+        }
+        
+        /* Modal Content/Box */
+        .modal-content {
+          background-color: #fefefe;
+          margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+          border: 1px solid #888;
+          width: 60%; /* Could be more or less, depending on screen size */
+          background-color: #0a0f79cf;
+            color: lightgray;
+        }
+        
+        /* The Close Button (x) */
+        .close {
+          position: absolute;
+          right: 25px;
+          top: 0;
+          color: #000;
+          font-size: 35px;
+          font-weight: bold;
+        }
+        
+        .close:hover,
+        .close:focus {
+          color: red;
+          cursor: pointer;
+        }
+        
+        /* Add Zoom Animation */
+        .animate {
+          -webkit-animation: animatezoom 0.2s;
+          animation: animatezoom 0.2s
+        }
+        
+        @-webkit-keyframes animatezoom {
+          from {-webkit-transform: scale(0)} 
+          to {-webkit-transform: scale(1)}
+        }
+          
+        @keyframes animatezoom {
+          from {transform: scale(0)} 
+          to {transform: scale(1)}
+        }
+        
+        /* Change styles for span and cancel button on extra small screens */
+        @media screen and (max-width: 300px) {
+          span.psw {
+             display: block;
+             float: none;
+          }
+          .cancelbtn {
+             width: 100%;
+          }
+        }
+        </style>
+
+    <div id="connect-dialog" class="modal">
+  
+        <form class="modal-content animate" action="/action_page.php" method="post">
+          <!-- <div class="imgcontainer">
+            <span onclick="document.getElementById('connect-dialog').style.display='none'" class="close" title="Close Modal">&times;</span>
+            <img src="img_avatar2.png" alt="Avatar" class="avatar">
+          </div> -->
+      
+          <div class="container">
+            <label for="server"><b>Server URL</b></label>
+            <input type="text" placeholder="http://fluiddpi.local:7125" name="server" notrequired>
+            <label for="apikey"><b>API Key</b></label>
+            <span  style='display:block;float:right;'><input type="checkbox" onclick="if(this.checked) $('input[name=apikey]').attr('type','text');else $('input[name=apikey]').attr('type','password'); ">Show API Key</span>
+            <input type="password" placeholder="Enter API key" name="apikey" notrequired>
+
+            <!-- <div>
+                <label for="uname"><b>Username</b></label>
+                <input type="text" placeholder="Enter Username" name="uname" required>
+      
+                <label for="psw"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" name="psw" required>
+            </div> -->
+
+              
+            
+            <!-- <label>
+              <input type="checkbox" checked="checked" name="remember"> Save Server
+            </label> -->
+            <!-- <label>
+                <input type="checkbox" checked="checked" name="autoconnect"> Connect automatically
+            </label> -->
+            </div>
+      
+          <div class="container" style="background-color: #050846cf;">
+            <button type="button" onclick="document.getElementById('connect-dialog').style.display='none'" class="cancelbtn">Cancel</button>
+            <button type="submit" style='float:right'>Save and Reload</button>
+            <!-- <span class="psw">Forgot <a href="#">password?</a></span> -->
+          </div>
+        </form>
+      </div>
+        <script>
+            // Get the modal
+            var modal = document.getElementById('connect-dialog');
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onmousedown = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        </script>
     <script src="js/jquery-3.6.0.min.js"></script>
 
     <script src="js/three.min.js"></script>

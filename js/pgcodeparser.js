@@ -312,7 +312,29 @@ function GCodeObject3(settings=null) {
         });
         return(needUpdate);
     }
+    this.hideAllBeforeLayer=function (layerNumber)
+    {
+        var needUpdate=false;//only need update if visiblity changes
 
+        gcodeGroup.traverse(function (child) {
+            if (child.name.startsWith("layer#")) {
+                if (child.userData.layerNumber<layerNumber) {
+
+                    if(child.visible)// || child.geometry.maxInstancedCount!=child.userData.numLines)
+                        needUpdate = true;
+
+                    child.visible = false;
+
+                    //handle hiding travels.
+                    if(!window.PGCSettings.showTravel && child.userData.isTravel)
+                        child.visible=false;
+
+                    //child.geometry.maxInstancedCount=child.userData.numLines;
+                }
+            }
+        });
+        return(needUpdate);
+    }
     this.syncGcodeObjToLayer=function (layerNumber,lineNumber=Infinity,hideBefore=false)
     {
         var needUpdate=false;//only need update if visiblity changes
@@ -416,16 +438,11 @@ function GCodeObject3(settings=null) {
                     var count =0;
                     while(count<filePositions.length && filePositions[count]<=filePosition)
                         count++;
-                    
-                    //hack comp for mirror.
-                    //todo. better handle of mirror object so this isnt needed. 
-                    // if(pgSettings.showMirror)
-                    //     count=count*2;
 
                     if(child.geometry.type!="BufferGeometry")
                         child.geometry.maxInstancedCount=Math.min(count,child.userData.numLines);
                     else
-                        child.geometry.setDrawRange(0,Math.min(count,child.userData.numLines*2));//*2 for plain lines
+                        child.geometry.setDrawRange(0,Math.min(count*2,child.userData.numLines*2));//*2 for plain lines
                     syncLayerNumber = child.userData.layerNumber
                 }
             }
@@ -455,7 +472,7 @@ function GCodeObject3(settings=null) {
     function addLayerObject(layer, extruding) {
 
         if (layer.vertex.length > 2) { //Something to draw?
-            if(window.PGCSettings.fatLines){//fancy lines
+            if(parserSettings.fatLines){//fancy lines
                 var geo = new THREE.LineGeometry();
                 geo.setPositions(layer.vertex);
                 geo.setColors(layer.colors)
@@ -786,10 +803,9 @@ function PrintHeadSimulator()
     }
 
     //load from a url
-    this.loadGcode=function(file_url)
+    this.loadGcode=function(file_url,apiKey)
     {
-        let searchParams = new URLSearchParams(window.location.search)
-        let apiKey=searchParams.get('apiKey')
+        //todo. Find a better way to pass the apiKey
         if(!apiKey)
             apiKey=''
 
@@ -821,7 +837,7 @@ function PrintHeadSimulator()
                         if (result.done) {
                             //finishLoading();
                             //syncGcodeObjTo(Infinity);
-                            console.log("PrintSimBufferSize:"+buffer.length)
+                            //console.log("PrintSimBufferSize:"+buffer.length)
                             return;
                         }
                         received += result.value.length;
@@ -1137,7 +1153,7 @@ function PrintHeadSimulator()
         //Convert the gcode feed rate (in MM/per min?) to rate per second.
         var rate = curState.rate/60.0;
     
-//rate=rate*0.75;//why still too fast?        
+rate=rate*0.050;//why still too fast?        
 //        rate=rate*10
 
         //adapt rate to keep up with buffer.
@@ -1156,6 +1172,9 @@ function PrintHeadSimulator()
         }
      
         //dist head needs to travel this frame
+        //todo. this is wrong. dist is based on rate of this segment only. 
+        //dist may not be the way to do this now.
+        //instead reduce a time by rate*distance
         var dist = rate*timeStep
         while((bufferCursor<buffer.length) && (dist >0))//while some place to go and some dist left.
         {
