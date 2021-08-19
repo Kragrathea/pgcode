@@ -1160,12 +1160,12 @@ rate=rate*0.050;//why still too fast?
         //todo. Make dist based rather than just buffer size.
         if(linesBehind<1)
             return;
-        if(linesBehind>5)
+        if(linesBehind>10)
         {
-            rate=rate*(linesBehind/0.9);
-            console.log(["Too Slow ",rate,linesBehind])
+            rate=rate*(linesBehind/5.0);
+            //console.log(["Too Slow ",rate,linesBehind])
         }
-        if(linesBehind<2)
+        if(linesBehind<5)
         {
             rate=rate*(1.0/(linesBehind*5.0));
             //console.log(["Too fast ",rate,linesBehind])
