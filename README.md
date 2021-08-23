@@ -79,6 +79,15 @@ For now to trouble shoot the connection you need to open the browsers developer 
 - Make sure the API key (if used) is set in the connection dialog
 - Make sure the domain you are browsing from is included in the cors_domain section of moonraker.conf
 
+```
+[authorization]
+enabled: True  #<--If this is True then PrettyGCode needs to use an API Key to connect
+cors_domains:
+  *.local
+  *.lan
+  *://app.fluidd.xyz
+  *  #<--Allow all domains
+```
 
 You may have to enable [octoprint_compat] in moonraker.conf file.
 
