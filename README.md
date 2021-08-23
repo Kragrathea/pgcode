@@ -24,9 +24,9 @@ Port can be set as part of installation. Default port is 7136
 # Moonraker config
 Depending on your setup you will probably have to edit Moonraker.conf to allow access. This can be done in Fluidd in the Configuration menu.
 
-Check to see if authorization is enabled or not. If it is you will need to use an API key. 
-
-You will also have to allow PrettyGCode access in the cors_domains: section. Check that the machine AND port you are browsing from is included in the cors_domains and/or trusted_clients sections. You _may_ also have to turn on octoprint_compat
+- Check to see if authorization is enabled or not. If it is you will need to use an API key. 
+- You will also have to allow PrettyGCode access in the cors_domains: section. Check that the machine AND port you are browsing from is included in the cors_domains and/or trusted_clients sections. 
+- You _may_ also have to turn on octoprint_compat. This allows auto detection of connections.
 
 Partial moonraker.conf
 ```
