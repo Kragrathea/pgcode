@@ -67,9 +67,11 @@ If you installed to some other machine subsititute the ip address or name.
 The above URL should take you to the PrettyGCode home page. If don't have your printer machine set to require login it should automatically connect. If you have your system secured you will have to use an API key to allow access. To configure the connection to the printer click on the connection button in the upper right of the screen. There you can enter your server address and any API key. 
 ![Screen2](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_screen2.jpg)
 
+ # Using an API key to connect
+If you have Moonraker secured behind a user name and password then you can use an API key to allow PrettyGCode to connect. 
+
 You can get your API key in Fluidd via the System configuration menu
 ![Screen1](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_apikeylocation.jpg)
-
 
 # Troubleshooting connections
 For now to trouble shoot the connection you need to open the browsers developer console and look for warnings in the console.
@@ -92,15 +94,12 @@ http://pgcode url:7136?server=http:// moonraker machine url:port
 
 NOTE: For now URLS must be in the format http://servername:port without any trailing path info.
 
-# Using an API key to connect
-If you have Moonraker secured behind a user name and password then you can use an API key to allow PrettyGCode to connect. Specify the API key in the URL like this:
+Specify the API key in the URL like this:
 
 http://fluiddpi.local:7136?apiKey=<moonraker api key>
  
 or
 http://fluiddpi.local:7136?server=http://fluiddpi.local:7125&apiKey=<moonraker api key>
- 
-You can get your API key in Fluidd under Settings->Authentication. Look for a button that says API KEY next to where you add users.
      
 # Setting printer bed volume
 By default the bed volume is 300x300 with the origin at the corner. If that doesn't match your printer you can adjust it via a URL parameter. Supported origins are currently, "center" and "lowerleft"      
