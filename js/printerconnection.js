@@ -2,11 +2,23 @@ function PrinterConnection()
 {
 
     var printerConnection=this;
+    window.printerConnection=this;
+    var connectionLog=[]
+
+    this.addLog=function(str){
+        console.log(str)
+        connectionLog.push(str)
+    }
+    this.getLog=function()
+    {
+        return connectionLog;
+    }
     //var defaultPrinterUrl=
     //var defaultMoonrakerPort="7125"
     this.detectConnection=function(serverUrl,apiKey)
     {
 
+        this.addLog("Detecting connection on:"+serverUrl)
         var myRequest = new Request(serverUrl+"/api/version",
             {
                 method: 'GET',
@@ -25,7 +37,7 @@ function PrinterConnection()
                 //console.log(response)
                 if(!response.ok)
                 {
-                    console.log(response.status)
+                    this.addLog(response.status)
                     throw(response.status+":"+response.statusText)
                 }
                 if (!response.body || !window['TextDecoder']) {
@@ -47,19 +59,19 @@ function PrinterConnection()
                         let msg = JSON.parse(rresult);
                         
                         if(msg.error){
-                            console.log("Detect ERROR:"+rresult);
+                            this.addLog("Detect ERROR:"+msg.error);
                         }
                         else{
                             if(msg.text && msg.text.toLowerCase().indexOf("moonraker")>-1){
-                                console.log("Detected Moonraker on:"+serverUrl)
-                                console.log(msg.text)
+                                printerConnection.addLog("Detected Moonraker on:"+serverUrl+" version:"+msg.text)
+                                //printerConnection.addLog(msg.text)
                                 printerConnection.connectToMoonraker(serverUrl,apiKey)
                             }else if(msg.text && msg.text.toLowerCase().indexOf("octoprint")>-1){
-                                console.log("Detected Octoprint on:"+serverUrl)
-                                console.log(msg.text)
+                                printerConnection.addLog("Detected Octoprint on:"+serverUrl+" version:"+msg.text)
+                                //printerConnection.addLog(msg.text)
                                 printerConnection.connectToOctoprint(serverUrl,apiKey)
                             }else{
-                                console.log("Detect Error:Unknown server:"+msg.text)
+                                printerConnection.addLog("Detect Error:Unknown server:"+msg.text)
                                 
                             }
                         }
@@ -68,21 +80,25 @@ function PrinterConnection()
                 }                                
 
             }).catch((error) => {
-                console.error('AUTO Detect Error:', error);
+                this.addLog('AUTO Detect Error:', error);
                 if(error.message=='Failed to fetch')
                 {
-                    console.log("Cant connect. Connection refused?")
+                    printerConnection.addLog("AUTO Detect: Cant connect. Connection refused?")
                 }
                 if(error.message=='403:FORBIDDEN' || '401:Unauthorized')
                 {
-                    console.log("Cant connect. API Key bad or missing?")
+                    printerConnection.addLog("AUTO Detect: Cant connect. API Key bad or missing?")
+                }else
+                {
+                    printerConnection.addLog("AUTO Detect: Unhandled error:"+error.message)
                 }                
-                console.error('Attempting direct Moonraker connection on:', serverUrl);
+                printerConnection.addLog('Attempting direct Moonraker connection on:'+serverUrl);
                 printerConnection.connectToMoonraker(serverUrl,apiKey)
             });            
     }
 
     var forceDisconnect=false;//not used?
+    var connectionError=false;
     var currentServerUrl=''
     var currentApiKey=''
     this.getConnectionInfo=function()
@@ -126,7 +142,7 @@ function PrinterConnection()
                     //console.log(response)
                     if (!response.body || !window['TextDecoder']) {
                         response.text().then(function (text) {
-                            console.log("FINISH:"+text);
+                            //console.log("FINISH:"+text);
                             //finishLoading();
                         });
                     } else {
@@ -201,6 +217,11 @@ function PrinterConnection()
 
     this.updateStateFromMoonraker=function()
     {
+        //handle disconnect if dragdropped a file.
+        //todo is this the right place to handle this?
+        if(forceDisconnect)
+            return;
+
         if(lastVirtualSD){
             let perDone = (lastVirtualSD.progress);
             if(isNaN(perDone))
@@ -324,6 +345,7 @@ function PrinterConnection()
             //if(!apiKey)
             //    resolve("")//no apikey provided
 
+            printerConnection.addLog("getOneShotToken from:"+host)
             //let apiKey=searchParams.get('apiKey')
             var myRequest = new Request(host+"/access/oneshot_token",
                 {
@@ -343,7 +365,7 @@ function PrinterConnection()
                     //console.log(response)
                     if(!response.ok)
                     {
-                        console.log(response.status)
+                        printerConnection.addLog(response.status)
                         throw(response.status+":"+response.statusText)
                     }
                     if (!response.body || !window['TextDecoder']) {
@@ -363,6 +385,7 @@ function PrinterConnection()
                             let msg = JSON.parse(rresult);
 
                             document.oneShotToken=msg.result;
+                            printerConnection.addLog("getOneShotToken success")
                             resolve(msg.result);
 
                             //return myReader.read().then(processResult);
@@ -370,14 +393,16 @@ function PrinterConnection()
                     }                                
 
                 }).catch((error) => {
-                    console.error('Error getOneShotToken:', error);
+                    printerConnection.addLog('Error getOneShotToken:', error);
                     if(error.message=='Failed to fetch')
                     {
-                        console.log("Cant connect. Connection refused?")
+                        printerConnection.addLog("Connection refused")
+                        printerConnection.connectionError=true; //this is a fatal connection error
                     }
-                    if(error.message=='403:FORBIDDEN' || '401:Unauthorized')
+                    if(error.message=='403:FORBIDDEN' || error.message=='401:Unauthorized')
                     {
-                        console.log("Cant connect. API Key bad or missing?")
+                        printerConnection.addLog("Forbidden. API Key bad or missing?")
+                        printerConnection.connectionError=true; //this is a fatal connection error
                     }  
                     reject();
                     //console.error('Attempting direct Moonraker connection on:', file_url);
@@ -401,12 +426,12 @@ function PrinterConnection()
             if ("WebSocket" in window)
             {
                 let socketUrl = "ws://"+socketHost+"/websocket"+"?token="+result
-                console.log("SocketURL:"+socketUrl)
+                printerConnection.addLog("SocketURL:"+socketUrl)
                 var ws = new WebSocket(socketUrl);
                 ws.onopen = function()
                 {
                     
-                    console.log("Connected to Moonraker on:ws://"+socketHost)
+                    printerConnection.addLog("Connected to Moonraker on:ws://"+socketHost)
 
                     printerConnection.curPrinterState.connected=true;
 
@@ -426,6 +451,7 @@ function PrinterConnection()
                                 //'"toolhead": ["gcode_position"]'+
                             '}},"id": 5434}'
                             );
+                    ws.send('{"jsonrpc": "2.0","method": "server.files.list","params": {},"id": 5434}')                            
                 };
     
                 ws.onmessage = function (e) 
@@ -464,8 +490,11 @@ function PrinterConnection()
                                 }                                
                             }
                         }else{
-                            console.log("Result with no status:")
-                            console.log("Result:"+JSON.stringify(msg.result))
+                            //console.log("Result with no status:")
+
+                            //handle reply to "server.files.list" here.
+                            
+                            //console.log("Result:"+JSON.stringify(msg.result))
                         }
                     }
                     if(msg.method)
@@ -477,6 +506,10 @@ function PrinterConnection()
                                 break;
                             case "notify_gcode_response":
                                 break;
+                            case "notify_filelist_changed":
+                                //params:[{"action":"create_file","item":{"modified":1629359885.227688,"size":5071474,"path":"CCR10_blah.gcode","root":"gcodes"}}]
+
+                                break;                                
                             case "notify_history_changed"://could be useful
                                 /*
                                 [{"action":"added",
@@ -490,6 +523,7 @@ function PrinterConnection()
     
                                 //force refresh of stats on history change
                                 ws.send('{"jsonrpc": "2.0","method": "printer.objects.query","params": {"objects": {"print_stats": null,"virtual_sdcard": null}},"id": 5434}')
+                                //ws.send('{"jsonrpc": "2.0","method": "server.files.list","params": {"root": "/","id": 5434}')
                                 break;
                             case "notify_status_update":
                                 //console.log("status_update:")
@@ -544,11 +578,16 @@ function PrinterConnection()
                 { 
                     this.curPrinterState.connected=false;
                     alert("Disconnected from printer")
+                    printerConnection.addLog("Disconnected from printer")
+                    printerConnection.connectionError=true; //this is a fatal connection error
+
                 };
     
                 ws.onerror = function(error){
                     this.curPrinterState.connected=false;
-                    console.log("Error connecting wsock:"+error)
+                    printerConnection.addLog("Error connecting wsock:"+error)
+                    printerConnection.connectionError=true; //this is a fatal connection error
+
                 }
             }
     

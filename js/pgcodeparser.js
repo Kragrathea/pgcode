@@ -724,8 +724,7 @@ function PrintHeadSimulator()
         let newBufferCursor=startBufferCursor;
        
         let count=0;
-        let distSq=0.0;
-        let dist=0.0;
+        let distTotal=0.0;
         let et=0.0;
         let curPos = buffer[newBufferCursor].position.clone();
         while(newBufferCursor<buffer.length)
@@ -733,11 +732,11 @@ function PrintHeadSimulator()
             if(buffer[newBufferCursor].filePos>=filePos)
             {    
                 //console.log("Found endBufferCursor:"+newBufferCursor)
-                return {seconds:et,lines:count,distance:Math.sqrt(distSq)};
+                return {seconds:et,lines:count,distance:/*Math.sqrt*/(distTotal)};
             }
-            distSq+=curPos.distanceToSquared(buffer[newBufferCursor].position)
+            let dist=curPos.distanceTo(buffer[newBufferCursor].position)
+            distTotal+=dist
 
-            dist=curPos.distanceTo(buffer[newBufferCursor].position)
             //dist is MM? rate is MM/Minute
             et+=(dist*(buffer[newBufferCursor].rate/60.0))/1000.0
 
@@ -765,8 +764,7 @@ function PrintHeadSimulator()
         let newBufferCursor=bufferCursor;
 //newBufferCursor=0;        
         let count=0;
-        let distSq=0.0;
-        let dist=0.0;
+        let distTotal=0.0;
         let et=0.0;
         let curPos = buffer[newBufferCursor].position.clone();
         while(newBufferCursor<buffer.length)
@@ -775,12 +773,11 @@ function PrintHeadSimulator()
             {    
                 //console.log("getDeltaTo:"+[buffer[newBufferCursor].filePos,filePos])
                 //return [et,count,Math.sqrt(distSq)];
-                return {seconds:et,lines:count,distance:Math.sqrt(distSq)};
+                return {seconds:et,lines:count,distance:/*Math.sqrt*/(distTotal)};
 
             }
-            distSq+=curPos.distanceToSquared(buffer[newBufferCursor].position)
-
-            dist=curPos.distanceTo(buffer[newBufferCursor].position)
+            let dist=curPos.distanceTo(buffer[newBufferCursor].position)
+            distTotal+=dist
             //dist is MM? rate is MM/Minute
             et+=(dist*(buffer[newBufferCursor].rate/60.0))/1000.0
 
@@ -876,21 +873,56 @@ function PrintHeadSimulator()
     {
         let color=null;
         let cmdLower=line.toLowerCase();
+        // if(cmdLower.startsWith("; object:{"))
+        // {
+        //     let json=line.substring("; object:".length);
+        //     let slicerInfo=JSON.parse(json)
+        //     console.log("Slicer Bound Center:"+slicerInfo.boundingbox_center)
+        //     console.log("Slicer Bound Size:"+slicerInfo.boundingbox_size)
+        // }
+        // else if(cmdLower.startsWith(";min"))
+        // {
+        //     if(cmdLower.startsWith(";minx:"))
+        //         console.log("MINX:"+parseInt(cmdLower.split(':')[1]))
+        //     if(cmdLower.startsWith(";miny:"))
+        //         console.log("MINY:"+parseInt(cmdLower.split(':')[1]))
+        //     if(cmdLower.startsWith(";minz:"))
+        //         console.log("MINZ:"+parseInt(cmdLower.split(':')[1]))
+        // }
+        // else if(cmdLower.startsWith(";max"))
+        // {
+        //     if(cmdLower.startsWith(";maxx:"))
+        //         console.log("MAXX:"+parseInt(cmdLower.split(':')[1]))
+        //     if(cmdLower.startsWith(";maxy:"))
+        //         console.log("MAXY:"+parseInt(cmdLower.split(':')[1]))
+        //     if(cmdLower.startsWith(";maxz:"))
+        //         console.log("MAXZ:"+parseInt(cmdLower.split(':')[1]))
+        // }
+        // else 
         if (cmdLower.indexOf("inner") > -1) {
             color = new THREE.Color('forestgreen');//green
         }
+        // else if (cmdLower.indexOf("overhang") > -1) {
+        //     color = new THREE.Color('forestgreen');//green
+        // }
         else if (cmdLower.indexOf("outer") > -1) {
             color = new THREE.Color('indianred');
         }
         else if (cmdLower.indexOf("perimeter") > -1) {
             color = new THREE.Color('indianred');
         }
+        // else if (cmdLower.indexOf("gap fill") > -1) {
+        //     color = new THREE.Color('skyblue');
+        // }
         else if (cmdLower.indexOf("fill") > -1) {
             color = new THREE.Color('darkorange');
         }
         else if (cmdLower.indexOf("skin") > -1) {
             color = new THREE.Color('yellow');
         }
+        // else if (cmdLower.indexOf("internal") > -1) {
+        //     color = new THREE.Color('yellow');
+        // }
         else if (cmdLower.indexOf("support") > -1) {
             color = new THREE.Color('skyblue');
         }
@@ -899,6 +931,18 @@ function PrintHeadSimulator()
         }
         else
         {
+            //cura info
+            //;FLAVOR:Marlin
+            //;TIME:1271
+            //;Filament used: 1.2109m
+            //;Layer height: 0.2
+
+            //;LAYER_COUNT:98
+            //;LAYER:0
+            //;TIME_ELAPSED:195.644520
+            //;LAYER:9
+
+            //console.log("Comment:"+cmdLower)
             //var curColorHex = (Math.abs(cmd.hashCode()) & 0xffffff);
             //curColor = new THREE.Color(curColorHex);
             //console.log(cmd + ' ' + curColorHex.toString(16))
@@ -1153,19 +1197,19 @@ function PrintHeadSimulator()
         //Convert the gcode feed rate (in MM/per min?) to rate per second.
         var rate = curState.rate/60.0;
     
-rate=rate*0.050;//why still too fast?        
+rate=rate*0.090;//why still too fast?        
 //        rate=rate*10
 
         //adapt rate to keep up with buffer.
         //todo. Make dist based rather than just buffer size.
         if(linesBehind<1)
             return;
-        if(linesBehind>10)
+        if(linesBehind>5)
         {
-            rate=rate*(linesBehind/5.0);
+            rate=rate*(linesBehind/0.9);
             //console.log(["Too Slow ",rate,linesBehind])
         }
-        if(linesBehind<5)
+        if(linesBehind<2)
         {
             rate=rate*(1.0/(linesBehind*5.0));
             //console.log(["Too fast ",rate,linesBehind])
