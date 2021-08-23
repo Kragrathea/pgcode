@@ -71,29 +71,8 @@ If you installed to some other machine subsititute the ip address or name.
 The above URL should take you to the PrettyGCode home page. If don't have your printer machine set to require login it should automatically connect. If you have your system secured you will have to use an API key to allow access. To configure the connection to the printer click on the connection button in the upper right of the screen. There you can enter your server address and any API key. 
 ![Screen2](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_screen2.jpg)
 
- # Using an API key to connect
-If you have Moonraker secured behind a user name and password then you can use an API key to allow PrettyGCode to connect. 
-
 You can get your API key in Fluidd via the System configuration menu
 ![Screen1](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_apikeylocation.jpg)
-
-# Troubleshooting connections
-For now to trouble shoot the connection you need to open the browsers developer console and look for warnings in the console.
-- Check to make sure the server url starts with http://
-- Make sure the API key (if used) is set in the connection dialog
-- Make sure the domain you are browsing from is included in the cors_domain section of moonraker.conf
-
-```
-[authorization]
-enabled: True  #<--If this is True then PrettyGCode needs to use an API Key to connect
-cors_domains:
-  *.local
-  *.lan
-  *://app.fluidd.xyz
-  *  #<--Allow all domains
-```
-
-You may have to enable [octoprint_compat] in moonraker.conf file.
 
 # Manually setting server via URL parameter (not recommended)
 
