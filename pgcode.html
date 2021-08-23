@@ -149,10 +149,10 @@
 
     <div class='pgclabel'>
         <div class='section'>
-            <div class='column'><span class="label">NAME</span><span id='status-name'></span></div>
+            <div class='column'><span class="label">NAME</span><span id='status-name'>Connect or drag/drop .GCode file</span></div>
         </div>
         <div class='section'>
-            <div class='column'><span class="label">SOURCE</span><span id='status-source'></span></div>
+            <div class='column'><span class="label">SOURCE</span><span id='status-source'>Disconnected</span></div>
             <div class='column'><span class="label">STATE</span><span id='status-state'></span></div>
             <div id='model-temp'  class='column'><span class="label">TOOL</span><span id='status-tooltemp'>0</span></div>
             <div id='model-temp'  class='column'><span class="label">BED</span><span id='status-bedtemp'>0</span></div>
@@ -329,6 +329,8 @@
             <label for="apikey"><b>API Key</b></label>
             <span  style='display:block;float:right;'><input type="checkbox" onclick="if(this.checked) $('input[name=apikey]').attr('type','text');else $('input[name=apikey]').attr('type','password'); ">Show API Key</span>
             <input type="password" placeholder="Enter API key" name="apikey" notrequired>
+            <label for="connection-log"><b>Connection log</b></label>
+            <textarea rows="8" style='width:100%' placeholder="" name="connection-log" notrequired></textarea>
 
             <!-- <div>
                 <label for="uname"><b>Username</b></label>
