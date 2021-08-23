@@ -111,6 +111,12 @@ $(function () {
                 camera2dLastPos={x:e.originalEvent.clientX,y:e.originalEvent.clientY}
                 camera2d.updateProjectionMatrix();
                 needRender=true;
+
+                if(pgSettings.saveCamera)
+                {
+                    let camStr= JSON.stringify({pos:camera2d.position,zoom:camera2d.zoom});
+                    localStorage.setItem('pgcCameraPos2d',camStr);
+                };
             }
         });        
         $('#pgc2dcanvas').on('wheel', function (e) {
@@ -120,6 +126,12 @@ $(function () {
                 camera2d.zoom=0.1;
             camera2d.updateProjectionMatrix();
             needRender=true;
+
+            if(pgSettings.saveCamera)
+            {
+                let camStr= JSON.stringify({pos:camera2d.position,zoom:camera2d.zoom});
+                localStorage.setItem('pgcCameraPos2d',camStr);
+            };
             //console.log(e)
         });
   
@@ -184,6 +196,7 @@ $(function () {
                         let files = e.originalEvent.dataTransfer.files;
                         //alert('Upload '+files.length+' File(s).');
                         let reader = new FileReader();
+                        $("#status-name").html(files[0].name)
                         uploadGcode(files[0])
                         //            /*UPLOAD FILES HERE*/
                         //upload(e.originalEvent.dataTransfer.files);
@@ -206,7 +219,7 @@ $(function () {
                 let info=printerConnection.getConnectionInfo()
                 $("input[name=server]").val(info.server)
                 $("input[name=apikey]").val(info.apiKey)
-
+                $("textarea[name=connection-log]").val(printerConnection.getLog().join("\n"))
                 //todo. hook up autoconnect
                 $("#connect-dialog").show()
             })
@@ -516,7 +529,16 @@ $(function () {
                     var camPos = JSON.parse(camStr)
                     cameraControls.setPosition(camPos.pos.x,camPos.pos.y,camPos.pos.z)
                     cameraControls.setTarget(camPos.target.x,camPos.target.y,camPos.target.z)
+
+                    camStr=localStorage.getItem('pgcCameraPos2d');
+                    camPos = JSON.parse(camStr)
+                    camera2d.position.set(camPos.pos.x,camPos.pos.y,camPos.pos.z);
+                    if(camera2d.zoom)
+                        camera2d.zoom=camPos.zoom;
+                    camera2d.updateProjectionMatrix();
+
                 }catch{}
+
             }
 
             //for debugging
@@ -687,8 +709,8 @@ $(function () {
                     //todo. stop when past end.
 
                     let lDelta=printHeadSim.getDeltaTo(curPrintFilePos);
-                    let linesBehind= lDelta.distance;
-//                    let linesBehind= lDelta.lines;
+//                    let linesBehind= lDelta.distance;
+                    let linesBehind= lDelta.lines;
 
                     if(linesBehind>300 || linesBehind<0){
                         console.log(["Seeking. linesBehind:",linesBehind])
@@ -971,6 +993,11 @@ $(function () {
                 //let lDelta=printHeadSim.getDeltaTo(curPrintFilePos);
                 let behind=printHeadSim.getDeltaFromTo(lastFilePos,curPrintFilePos);
                 console.log("Behind Stats:"+JSON.stringify(behind))
+
+                let total=printHeadSim.getDeltaFromTo(0,curPrintFilePos);
+                total.printTime=pstate.printTime;
+                total.actualRate=(total.distance/total.printTime)*60;
+                console.log("Total Stats:"+JSON.stringify(total))
                 lastFilePos=curPrintFilePos;
 
 
