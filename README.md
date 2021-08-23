@@ -21,6 +21,41 @@ On the main Kiauh screen select Option 1) [Install] and then select PrettGCode:
 
 Port can be set as part of installation. Default port is 7136
 
+# Moonraker config
+PrettyGCode should run as installed. But, depending on your setup, you may have to edit Moonraker.conf to allow access. Check that the machine you are browsing from is included in the cors_domains and/or trusted_clients sections. You may also have to turn on octoprint_compat
+
+Partial moonraker.conf
+```
+[authorization]
+enabled: True  #<--If this is True then PrettyGCode needs to use an API Key to connect
+cors_domains:
+  *.local
+  *.lan
+  *://app.fluidd.xyz
+  *  #<--Allow all domains
+
+trusted_clients:
+    10.0.0.0/8
+    127.0.0.0/8
+    169.254.0.0/16
+    172.16.0.0/12
+    192.168.0.0/16  #<--Trust local network machines
+    192.168.1.0/160  #<--Trust local network machines
+    FE80::/10
+    ::1/128
+
+# enables support for slicer uploads via partial Octoprint API impl
+[octoprint_compat]
+```
+# Fluidd config
+If you haven't already you may have to enable SD support in Fluidd
+
+Partial Fluidd client.cfg
+```
+[virtual_sdcard]
+path: ~/gcode_files
+```
+
 # Connecting to Fluidd/Moonraker
 
 Assuming you installed on a machine with a local name of "fluiddpi" you can access the PrettyGCode page by using this url. 
@@ -34,6 +69,16 @@ The above URL should take you to the PrettyGCode home page. If don't have your p
 
 You can get your API key in Fluidd via the System configuration menu
 ![Screen1](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_apikeylocation.jpg)
+
+
+# Troubleshooting connections
+For now to trouble shoot the connection you need to open the browsers developer console and look for warnings in the console.
+- Check to make sure the server url starts with http://
+- Make sure the API key (if used) is set in the connection dialog
+- Make sure the domain you are browsing from is included in the cors_domain section of moonraker.conf
+
+
+You may have to enable [octoprint_compat] in moonraker.conf file.
 
 # Manually setting server via URL parameter (not recommended)
 
@@ -63,46 +108,6 @@ By default the bed volume is 300x300 with the origin at the corner. If that does
 For example this will set a 200x200 volume with the origin at the "center"
      
 http://fluiddpi.local:7136?bed.width=200&bed.height=200&bed.origin=center
-
-# Moonraker config
-PrettyGCode should run as installed. But, depending on your setup, you may have to edit Moonraker.conf to allow access. Check that the machine you are browsing from is included in the cors_domains and/or trusted_clients sections. You may also have to turn on octoprint_compat
-
-Partial moonraker.conf
-```
-[authorization]
-enabled: True
-cors_domains:
-  *.local
-  *.lan
-  *://app.fluidd.xyz
-  *
-
-trusted_clients:
-    10.0.0.0/8
-    127.0.0.0/8
-    169.254.0.0/16
-    172.16.0.0/12
-    192.168.0.0/16
-    192.168.1.0/160
-    FE80::/10
-    ::1/128
-
-# enables support for slicer uploads via partial Octoprint API impl
-[octoprint_compat]
-```
-# Fluidd config
-If you haven't already you may have to enable SD support in Fluidd
-
-Partial Fluidd client.cfg
-```
-[virtual_sdcard]
-path: ~/gcode_files
-```
-
-# Troubleshooting connections
-For now to trouble shoot the connection you need to open the browsers developer console and look for warnings in the console.
-
-You may have to enable [octoprint_compat] in moonraker.conf file. 
 
 # Options:
 - Sync to progress. Sync the 3d view to approximately where the printer is printing. See notes on syncing below.
