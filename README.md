@@ -22,7 +22,7 @@ On the main Kiauh screen select Option 1) [Install] and then select PrettGCode:
 Port can be set as part of installation. Default port is 7136
 
 # Moonraker config
-PrettyGCode should run as installed. But, depending on your setup, you may have to edit Moonraker.conf to allow access. Check that the machine AND port you are browsing from is included in the cors_domains and/or trusted_clients sections. You may also have to turn on octoprint_compat
+PrettyGCode should run as installed. But, depending on your setup and depending on if you have authorizaion enabled, you may have to edit Moonraker.conf to allow access. Check that the machine AND port you are browsing from is included in the cors_domains and/or trusted_clients sections. You _may_ also have to turn on octoprint_compat
 
 Partial moonraker.conf
 ```
