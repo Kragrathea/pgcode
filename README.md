@@ -22,7 +22,11 @@ On the main Kiauh screen select Option 1) [Install] and then select PrettGCode:
 Port can be set as part of installation. Default port is 7136
 
 # Moonraker config
-PrettyGCode should run as installed. But, depending on your setup and depending on if you have authorizaion enabled, you may have to edit Moonraker.conf to allow access. Check that the machine AND port you are browsing from is included in the cors_domains and/or trusted_clients sections. You _may_ also have to turn on octoprint_compat
+Depending on your setup you will probably have to edit Moonraker.conf to allow access. This can be done in Fluidd in the Configuration menu.
+
+Check to see if authorization is enabled or not. If it is you will need to use an API key. 
+
+You will also have to allow PrettyGCode access in the cors_domains: section. Check that the machine AND port you are browsing from is included in the cors_domains and/or trusted_clients sections. You _may_ also have to turn on octoprint_compat
 
 Partial moonraker.conf
 ```
@@ -32,15 +36,14 @@ cors_domains:
   *.local
   *.lan
   *://app.fluidd.xyz
-  *.local:*  #<--Allow PrettyGCode on a .*local domain. And/Or...
-  *  #<--Allow PrettyGCode on all domains
+  *.local:7136  #<--Allow PrettyGCode (port 7136) on a .*local domain. OR...
+  *:7136  #<--Allow PrettyGCode (port 7136) on all domains
 
 trusted_clients:
     10.0.0.0/8
     127.0.0.0/8
     169.254.0.0/16
     172.16.0.0/12
-    192.168.0.0/16  #<--Trust local network machines. Only needed if [authorization] enabled is True.
     192.168.1.0/160  #<--Trust local network machines. Only needed if [authorization] enabled is True.
     FE80::/10
     ::1/128
