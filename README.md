@@ -9,7 +9,7 @@ PrettyGCode WebGL based GCode preview and simulator
 - Drag drop GCode files to 3d window for quick preview
 
 # Screenshots
-![Screen1](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_screen1.jpg)
+![Screen1](https://raw.githubusercontent.com/Kragrathea/pgcode/dev/img/pgc_screen1.jpg)
 
 # Installation via Kiauh (Recommended)
 PrettyGCode can now be installed using the Kiauh installer. This is by far the easiest method to install.
@@ -17,7 +17,7 @@ PrettyGCode can now be installed using the Kiauh installer. This is by far the e
 https://github.com/th33xitus/kiauh
 
 On the main Kiauh screen select Option 1) [Install] and then select PrettGCode:
-![InstallScreen1](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/installscreen1.jpg)
+![InstallScreen1](https://raw.githubusercontent.com/Kragrathea/pgcode/dev/img/installscreen1.jpg)
 
 Port can be set as part of installation. Default port is 7136
 
