@@ -30,8 +30,10 @@ http://fluiddpi.local:7136 <-Should automatically connect to the local instance 
 If you installed to some other machine subsititute the ip address or name.
 
 The above URL should take you to the PrettyGCode home page. If don't have your printer machine set to require login it should automatically connect. If you have your system secured you will have to use an API key to allow access. To configure the connection to the printer click on the connection button in the upper right of the screen. There you can enter your server address and any API key. 
+![Screen2](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_screen2.jpg)
 
 You can get your API key in Fluidd via the System configuration menu
+![Screen1](https://raw.githubusercontent.com/Kragrathea/pgcode/main/img/pgc_apikeylocation.jpg)
 
 # Manually setting server via URL parameter (not recommended)
 
