@@ -119,7 +119,7 @@ By default the bed volume is 300x300 with the origin at the corner. If that does
 
 For example this will set a 200x200 volume with the origin at the "center"
      
-http://fluiddpi.local:7136?bed.width=200&bed.height=200&bed.origin=center
+http://fluiddpi.local:7136?bed.width=200&bed.depth=200&bed.origin=center
 
 # Options:
 - Sync to progress. Sync the 3d view to approximately where the printer is printing. See notes on syncing below.
