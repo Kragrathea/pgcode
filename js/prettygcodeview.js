@@ -376,7 +376,8 @@ $(function () {
                     $("#status-state").html(newState.state)
                     $("#status-elapsed").html(new Date(newState.printTime * 1000).toISOString().substr(11, 8))
                     $("#status-done").html(newState.perDone.toString()+"%")
-                    $("#status-eta").html(new Date(newState.printTimeLeft * 1000).toISOString().substr(11, 8))
+                    if(newState.printTimeLeft)
+                        $("#status-eta").html(new Date(newState.printTimeLeft * 1000).toISOString().substr(11, 8))
 
                     //todo. find another place for this?
                     if(gcodeProxy)

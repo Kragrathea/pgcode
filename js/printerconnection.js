@@ -527,26 +527,27 @@ function PrinterConnection()
                                 break;
                             case "notify_status_update":
                                 //console.log("status_update:")
-                                for(var pnum in msg.params){
-                                    let pname= Object.keys(msg.params[pnum])[0]
+                                let keys=Object.keys(msg.params[0]);
+                                for(let pnum=0;pnum<keys.length;pnum++){
+                                    let pname=keys[pnum]
                                     if(pname=='print_stats'){
                                         //let pms=msg.params[pnum]
-                                        let pobj = msg.params[pnum][pname]
+                                        let pobj = msg.params[0][pname]
     
                                         lastPrintStats=Object.assign(lastPrintStats,pobj)
                                         //console.log("PRINTSTATS:"+JSON.stringify(lastPrintStats))
                                     }else if(pname=='virtual_sdcard'){
-                                        let pobj = msg.params[pnum][pname]
+                                        let pobj = msg.params[0][pname]
                                         lastVirtualSD=Object.assign(lastVirtualSD,pobj)
                                         //console.log("VIRTSD:"+JSON.stringify(lastVirtualSD))
                                     }else if(pname=="extruder")
                                     {
-                                        let pobj = msg.params[pnum][pname]
+                                        let pobj = msg.params[0][pname]
                                         lastExtruderTemp=pobj.temperature;
                                         $("#status-tooltemp").html(lastExtruderTemp.toFixed(1)+"&deg;")
                                     }else if(pname=="heater_bed")
                                     {
-                                        let pobj = msg.params[pnum][pname]
+                                        let pobj = msg.params[0][pname]
                                         lastBedTemp=pobj.temperature;
                                         $("#status-bedtemp").html(lastBedTemp.toFixed(1)+"&deg;")
                                     }else if(!pname){
@@ -595,7 +596,7 @@ function PrinterConnection()
             {
             // The browser doesn't support WebSocket
             }
-            printerConnection.startTempUpdate(serverUrl,apiKey);
+            //printerConnection.startTempUpdate(serverUrl,apiKey);
         })
 
             
