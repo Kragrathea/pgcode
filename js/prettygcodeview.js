@@ -1033,6 +1033,8 @@ $(function () {
             let searchParams = new URLSearchParams(window.location.search)
             if(searchParams.has('bed.width'))
                 bedVolume.width=parseInt(searchParams.get('bed.width'))
+            if(searchParams.has('bed.depth'))
+                bedVolume.depth=parseInt(searchParams.get('bed.depth'))
             if(searchParams.has('bed.height'))
                 bedVolume.height=parseInt(searchParams.get('bed.height'))
             if(searchParams.has('bed.origin'))
@@ -1100,7 +1102,7 @@ $(function () {
             //plane.quaternion.setFromEuler(new THREE.Euler(- Math.PI / 2, 0, 0));
             scene.add(plane);
             //make bed sized grid. 
-            var grid = new THREE.GridHelper(bedVolume.width, bedVolume.width / 10, 0x000000, 0x888888);
+            var grid = new THREE.GridHelper(bedVolume.width, bedVolume.depth / 10, 0x000000, 0x888888);
             grid.name="grid";
             //todo handle other than lowerleft
             if (bedVolume.origin == "lowerleft")
