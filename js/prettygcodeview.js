@@ -463,7 +463,7 @@ $(function () {
 
                     
             }
-        };
+        }; 
 
 
         function resizeCanvasToDisplaySize() {
