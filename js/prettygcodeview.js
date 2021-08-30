@@ -469,7 +469,7 @@ $(function () {
         function resizeCanvasToDisplaySize() {
             const canvas = renderer.domElement;
             // look up the size the canvas is being displayed
-            const width = canvas.clientWidth;
+            const width = canvas.clientWidth; 
             const height = canvas.clientHeight;
 
             // adjust displayBuffer size to match
