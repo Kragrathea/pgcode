@@ -449,25 +449,7 @@ function GCodeObject3(settings=null) {
         });
         return syncLayerNumber;//used to sync other elements.
     }
-    this.finishLoading=function()
-    {
-        if (currentLayer !== undefined) {
-            addObject(currentLayer, true);
-        }
 
-        console.log("Finished loading GCode object.")
-        console.log(["layers:",layers.length,"size:",filePos])
-
-        let totalLines=0;
-        for(let layer of layers)
-        {
-            totalLines+=layer.vertex.length/6;
-        }
-        console.log(["lines:",totalLines])
-
-        //this.syncGcodeObjTo(Infinity);
-
-    }
 
     function addLayerObject(layer, extruding) {
 
@@ -524,6 +506,12 @@ function GCodeObject3(settings=null) {
         currentLayer = { vertex: [], z: line.z, colors: [], filePositions:[],pathVertex: [],pathColors: [],pathFilePositions: [], };
         layers.push(currentLayer);
         //console.log("layer #" + layers.length + " z:" + line.z);
+
+    }
+    this.finishLayer= function(p) {
+        if (currentLayer !== undefined) {
+            addLayerObject(currentLayer);
+        }
 
     }
 
@@ -799,6 +787,26 @@ function PrintHeadSimulator()
         reader.readAsText(file, "UTF-8");
     }
 
+    function finishLoading()
+    {
+
+        if (gcodeObject)
+            gcodeObject.finishLayer();
+
+        console.log("Finished loading GCode object.")
+        console.log(["layers:",gcodeObject.getLayerCount(),"size:",filePos])
+
+        // let totalLines=0;
+        // for(let layer of layers)
+        // {
+        //     totalLines+=layer.vertex.length/6;
+        // }
+        // console.log(["lines:",totalLines])
+
+        //this.syncGcodeObjTo(Infinity);
+
+    }
+
     //load from a url
     this.loadGcode=function(file_url,apiKey)
     {
@@ -823,7 +831,7 @@ function PrintHeadSimulator()
                 if (!response.body || !window['TextDecoder']) {
                     response.text().then(function (text) {
                         addCommands(text);
-                        //finishLoading();
+                        finishLoading();
                     });
                 } else {
                     var myReader = response.body.getReader();
@@ -832,7 +840,7 @@ function PrintHeadSimulator()
                     var received = 0;
                     myReader.read().then(function processResult(result) {
                         if (result.done) {
-                            //finishLoading();
+                            finishLoading();
                             //syncGcodeObjTo(Infinity);
                             //console.log("PrintSimBufferSize:"+buffer.length)
                             return;
