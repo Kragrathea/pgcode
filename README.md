@@ -93,7 +93,7 @@ cors_domains:
 
 You may have to enable [octoprint_compat] in moonraker.conf file.
 
-# Manually setting server via URL parameter (not recommended)
+# Manually setting server via URL parameter
 
 If your server is located on another machine or isn't being detected you can specifiy it on the command line like this:
 
