@@ -84,8 +84,7 @@ For now to trouble shoot the connection you need to open the browsers developer 
 - Make sure the domain you are browsing from is included in the cors_domain section of moonraker.conf
 
 ```
-[authorization]
-enabled: True  #<--If this is True then PrettyGCode needs to use an API Key to connect
+[authorization]#<--If this section is present then PrettyGCode needs to use an API Key to connect
 cors_domains:
   *.local
   *.lan
