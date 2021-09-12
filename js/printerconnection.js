@@ -577,17 +577,19 @@ function PrinterConnection()
     
                 ws.onclose = function()
                 { 
-                    this.curPrinterState.connected=false;
-                    alert("Disconnected from printer")
                     printerConnection.addLog("Disconnected from printer")
                     printerConnection.connectionError=true; //this is a fatal connection error
+                    if(this.curPrinterState)
+                        this.curPrinterState.connected=false;
+                    //alert("Disconnected from printer")
 
                 };
     
                 ws.onerror = function(error){
-                    this.curPrinterState.connected=false;
                     printerConnection.addLog("Error connecting wsock:"+error)
                     printerConnection.connectionError=true; //this is a fatal connection error
+                    if(this.curPrinterState)
+                        this.curPrinterState.connected=false;
 
                 }
             }
