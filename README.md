@@ -30,14 +30,13 @@ Depending on your setup you will probably have to edit Moonraker.conf to allow a
 
 Partial moonraker.conf
 ```
-[authorization]
-enabled: True  #<--If this is True then PrettyGCode needs to use an API Key to connect
+[authorization]#<--If this section is present then PrettyGCode needs to use an API Key to connect
 cors_domains:
   *.local
   *.lan
   *://app.fluidd.xyz
-  *.local:7136  #<--Allow PrettyGCode (port 7136) on a .*local domain. OR...
-  *:7136  #<--Allow PrettyGCode (port 7136) on all domains
+  *:7136  #<--Allow PrettyGCode (port 7136) on all domains (recommended) OR...
+  *.local:7136  #<--Allow PrettyGCode (port 7136) on just .*local domain. (more secure I guess)
 
 trusted_clients:
     10.0.0.0/8
