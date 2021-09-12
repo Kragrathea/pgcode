@@ -43,7 +43,7 @@ trusted_clients:
     127.0.0.0/8
     169.254.0.0/16
     172.16.0.0/12
-    192.168.1.0/160  #<--Trust local network machines. Only needed if [authorization] enabled is True.
+    192.168.1.0/160  #<--Trust local network machines. Only needed if [authorization] enabled.
     FE80::/10
     ::1/128
 
