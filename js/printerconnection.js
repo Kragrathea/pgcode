@@ -426,6 +426,9 @@ function PrinterConnection()
             if ("WebSocket" in window)
             {
                 let socketUrl = "ws://"+socketHost+"/websocket"+"?token="+result
+                if(serverUrl.toLowerCase().startsWith("https"))
+                    socketUrl = "wss://"+socketHost+"/websocket"+"?token="+result
+
                 printerConnection.addLog("SocketURL:"+socketUrl)
                 var ws = new WebSocket(socketUrl);
                 ws.onopen = function()
