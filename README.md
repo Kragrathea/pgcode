@@ -30,21 +30,20 @@ Depending on your setup you will probably have to edit Moonraker.conf to allow a
 
 Partial moonraker.conf
 ```
-[authorization]
-enabled: True  #<--If this is True then PrettyGCode needs to use an API Key to connect
+[authorization]#<--If this section is present then PrettyGCode needs to use an API Key to connect
 cors_domains:
   *.local
   *.lan
   *://app.fluidd.xyz
-  *.local:7136  #<--Allow PrettyGCode (port 7136) on a .*local domain. OR...
-  *:7136  #<--Allow PrettyGCode (port 7136) on all domains
+  *:7136  #<--Allow PrettyGCode (port 7136) on all domains (recommended) OR...
+  *.local:7136  #<--Allow PrettyGCode (port 7136) on just .*local domain. (more secure I guess)
 
 trusted_clients:
     10.0.0.0/8
     127.0.0.0/8
     169.254.0.0/16
     172.16.0.0/12
-    192.168.1.0/160  #<--Trust local network machines. Only needed if [authorization] enabled is True.
+    192.168.1.0/160  #<--Trust local network machines. Only needed if [authorization] enabled.
     FE80::/10
     ::1/128
 
@@ -84,8 +83,7 @@ For now to trouble shoot the connection you need to open the browsers developer 
 - Make sure the domain you are browsing from is included in the cors_domain section of moonraker.conf
 
 ```
-[authorization]
-enabled: True  #<--If this is True then PrettyGCode needs to use an API Key to connect
+[authorization]#<--If this section is present then PrettyGCode needs to use an API Key to connect
 cors_domains:
   *.local
   *.lan
@@ -95,7 +93,7 @@ cors_domains:
 
 You may have to enable [octoprint_compat] in moonraker.conf file.
 
-# Manually setting server via URL parameter (not recommended)
+# Manually setting server via URL parameter
 
 If your server is located on another machine or isn't being detected you can specifiy it on the command line like this:
 
