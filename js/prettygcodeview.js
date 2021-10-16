@@ -64,6 +64,11 @@ $(function () {
         var camera2dDragging=false;
         var camera2dLastPos=null;
 
+        let searchParams = new URLSearchParams(window.location.search)
+        if(searchParams.has('embedded')){
+            $(".pgconnection").hide();
+            $("#pgclogo").hide();
+        }
         $('#layer-slider').on('mousedown', function (e) {
             forceNoSync=true
 
@@ -1005,7 +1010,7 @@ $(function () {
             }, interval);  
 
         }
-        let searchParams = new URLSearchParams(window.location.search)
+        //let searchParams = new URLSearchParams(window.location.search)
         if(searchParams.has('playstats'))
             startPlaybackStats()
 
