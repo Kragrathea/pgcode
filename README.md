@@ -49,6 +49,14 @@ trusted_clients:
 
 # enables support for slicer uploads via partial Octoprint API impl
 [octoprint_compat]
+
+# Adds PrettyGCode to Moonrakers update manager
+[update_manager pgcode]
+type: git_repo
+primary_branch: main
+origin: https://github.com/Kragrathea/pgcode.git
+path: ~/pgcode
+is_system_service: False
 ```
 # Fluidd config
 If you haven't already you may have to enable SD support in Fluidd
