@@ -101,6 +101,12 @@ cors_domains:
 
 You may have to enable [octoprint_compat] in moonraker.conf file.
 
+## Mixed Content (e.g., Reverse Proxies)
+
+If you're using a reverse proxy and it's serving your front-end via https://, then it's likely your browser won't allow mixing the http:// calls to your moonraker instance. A simple fix is to create another reverse proxy endpoint to moonraker. For example, if you access Fluidd on https://myprinter.example.com, create a new domain name such as https://api-myprinter.example.com pointing to moonraker's host and port.
+
+Alertnatively, you can configure your browser to allow "mixed content" (which is no longer the default on some modern browsers) to both the secure and insecure content. This option may not be available on every browser, however, particularly some mobile browsers.
+
 # Manually setting server via URL parameter
 
 If your server is located on another machine or isn't being detected you can specifiy it on the command line like this:
