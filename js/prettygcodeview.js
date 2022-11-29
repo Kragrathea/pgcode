@@ -17,6 +17,7 @@ $(function () {
             this.showNozzle=true;
             this.highlightCurrentLayer=true;
             this.show2d=true;
+			this.font="Brush Script";
         };
         var pgSettings = new PGSettings();
         window.PGCSettings=pgSettings;
@@ -338,6 +339,11 @@ $(function () {
                 //todo handle finish change for this
                 gui.add(pgSettings, 'perspectiveCamera');
                 
+				
+				gui.add(pgSettings, 'font', ["Ariel", "Brush Script", "Courier New", "Helvetica", "Times", "Verdana"]).onFinishChange(function(){
+					InitFont();
+                });;
+				
 
                 var folder = gui.addFolder('Windows');//hidden.
                 // folder.add(pgSettings, 'showState').onFinishChange(updateWindowStates).listen();
@@ -355,6 +361,12 @@ $(function () {
             } 
         }
 
+		function InitFont()
+		{
+			var font = pgSettings.font === "Brush Script" ? "'Brush Script MT', cursive" : pgSettings.font;
+			$('.pgLogo').css({"font-family" : font});
+			$('.pgclabel').css({"font-family" : font});
+		}
 
         self.initScene = function () {
             if (!viewInitialized) {
@@ -556,7 +568,7 @@ $(function () {
                 scene.background = new THREE.Color(0xd0d0d0);
             else
                 scene.background = null;//new THREE.Color(0xd0d0d0);
-
+			InitFont();
             //for debugging
             window.myScene = scene;
 
