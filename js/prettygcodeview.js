@@ -390,10 +390,11 @@ $(function () {
                         if($(".pgconnection").hasClass("connected"))
                             $(".pgconnection").removeClass("connected")                        
                     }
+					
                     $("#status-state").html(newState.state)
                     $("#status-elapsed").html(new Date(newState.printTime * 1000).toISOString().substr(11, 8))
                     $("#status-done").html(newState.perDone.toString()+"%")
-                    if(newState.printTimeLeft)
+                    if(newState.printTimeLeft && Number.isFinite(newState.printTimeLeft))
                         $("#status-eta").html(new Date(newState.printTimeLeft * 1000).toISOString().substr(11, 8))
 
                     //todo. find another place for this?
