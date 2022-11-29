@@ -343,7 +343,7 @@ $(function () {
 				gui.add(pgSettings, 'font', ["Ariel", "Brush Script", "Courier New", "Helvetica", "Times", "Verdana"]).onFinishChange(function(){
 					InitFont();
                 });;
-				
+				InitFont();
 
                 var folder = gui.addFolder('Windows');//hidden.
                 // folder.add(pgSettings, 'showState').onFinishChange(updateWindowStates).listen();
@@ -568,7 +568,7 @@ $(function () {
                 scene.background = new THREE.Color(0xd0d0d0);
             else
                 scene.background = null;//new THREE.Color(0xd0d0d0);
-			InitFont();
+			
             //for debugging
             window.myScene = scene;
 
